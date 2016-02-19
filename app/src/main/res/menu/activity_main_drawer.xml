@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/book_taxi"
+            android:title="Request Ride" />
+        <item android:id="@+id/taxi_history"
+            android:title="History" />
+        <item android:id="@+id/edit_account"
+            android:title="Settings" />
+    </group>
+
+    <group android:id="@+id/nav_split">
+        <item android:id="@+id/about"
+            android:title="About" />
+        <item android:id="@+id/logout"
+            android:title="Logout" />
+    </group>
+</menu>
