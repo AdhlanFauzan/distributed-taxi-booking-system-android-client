@@ -122,8 +122,8 @@ public class BookingFragment extends Fragment implements BookingState {
                     }
 
 
-                    /**
-                     * Handle to manage result of background task.
+                     /**
+                     * Handler to manage result of background task.
                      *
                      * @param result result of background task.
                      */
