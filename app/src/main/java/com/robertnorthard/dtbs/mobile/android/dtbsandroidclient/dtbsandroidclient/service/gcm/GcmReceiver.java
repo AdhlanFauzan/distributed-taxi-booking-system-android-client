@@ -4,12 +4,14 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 
 /**
  * Handles incoming Google cloud messenger messages.
@@ -35,6 +37,18 @@ public class GcmReceiver extends GcmListenerService {
         String message = data.getString("message");
 
         this.broadcastEvent(message,eventType);
+
+        // send broadcast notifications while app is in background if porperty enabled.
+        if(PreferenceManager
+                .getDefaultSharedPreferences(
+                getBaseContext())
+                .getBoolean(DtbsPreferences
+                        .NOTIFICATIONS_ENABLED_KEY,
+                        true)){
+
+            this.sendNotification(getString(R.string.app_name),message);
+        }
+
     }
 
     /**

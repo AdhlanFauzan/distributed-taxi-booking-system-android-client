@@ -42,12 +42,12 @@ public class BookingService {
     /**
      * Find a booking.
      *
-     * @param id id ofbooking to find.
+     * @param id id of booking to find.
      * @return booking if found.
      * @throws IllegalArgumentException if booking not found.
      * @throws IOException network error.
      */
-    public Booking findBooking(int id)
+    public Booking findBooking(long id)
             throws IOException, JSONException {
 
         Map<String,String> tokens = new HashMap<>();
@@ -68,6 +68,37 @@ public class BookingService {
 
                 return booking;
             }else{
+                throw new IllegalArgumentException(response.getString("data"));
+            }
+
+        } catch (IOException e) {
+            throw e;
+        }
+    }
+
+    /**
+     * Cancel a booking.
+     *
+     * @param id id of booking to cancel.
+     *
+     * @throws IllegalArgumentException if booking not found.
+     * @throws IOException network error.
+     */
+    public void cancelBooking(long id)
+            throws IOException, JSONException {
+
+        Map<String,String> tokens = new HashMap<>();
+        tokens.put("id", String.valueOf(id));
+
+        Booking booking = null;
+
+        try {
+            JSONObject response = this.restClient.sendData(
+                    ConfigService.parseProperty(ConfigService.getProperty("dtbs.endpoint.booking.id.cancel"),tokens), HttpMethod.PUT, null);
+
+            JSONObject data = null;
+
+            if(!response.getString("status").equals("0")){
                 throw new IllegalArgumentException(response.getString("data"));
             }
 
@@ -129,11 +160,11 @@ public class BookingService {
             JSONObject response = this.restClient.sendData(
                     ConfigService.getProperty("dtbs.endpoint.booking"), HttpMethod.POST, params);
 
-            JSONArray data = null;
+            JSONObject data = null;
 
             if(response.getString("status").equals("0")){
 
-                data = response.getJSONArray("data");
+                data = response.getJSONObject("data");
 
                 return this.dataMapper.readObject(data.toString(), Booking.class);
 

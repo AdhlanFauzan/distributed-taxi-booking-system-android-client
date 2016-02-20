@@ -6,7 +6,7 @@ package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclie
  * @author robertnorthard
  */
 public enum HttpMethod {
-    POST("POST"), GET("GET"), DELETE("DELETE"), OPTIONS("OPTIONS");
+    POST("POST"), GET("GET"), DELETE("DELETE"), PUT("PUT"), OPTIONS("OPTIONS");
 
     String post;
 

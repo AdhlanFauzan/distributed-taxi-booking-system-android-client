@@ -1,7 +1,6 @@
 package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.passenger;
 
 import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -26,6 +24,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.AwaitingTaxiStateFragment;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.BookingFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.RequestRideStateFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.HourMinutesSecondsFormatter;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.TimeFormatter;
@@ -61,8 +61,8 @@ public class PassengerMapFragment extends Fragment implements Observer {
     private EditText pickupLocation;
     private TextView waitTime;
     private Button btnBookTaxi;
-
     private TimeFormatter timeFormatter;
+
 
     /**
      * Constructor for class passenger map fragment.
@@ -92,9 +92,6 @@ public class PassengerMapFragment extends Fragment implements Observer {
         // Subscribe to event broadcasters
         this.allTaxis.addObserver(this);
 
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
-                new IntentFilter(DtbsPreferences.BOOKING_EVENTS_TOPIC));
-
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mLocationReceiver,
                 new IntentFilter(DtbsPreferences.LOCATION_EVENT));
     }
@@ -119,14 +116,19 @@ public class PassengerMapFragment extends Fragment implements Observer {
         waitTime = (TextView)v.findViewById(R.id.view_wait_time);
         mapView = (MapView) v.findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
-        MapsInitializer.initialize(this.getActivity());
-        this.initialiseMap();
 
-        final FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(R.id.content_map_state_frame, new RequestRideStateFragment(), "RequestRideFragment");
-        ft.commit();
+        MapsInitializer.initialize(this.getActivity());
+        map = this.initialiseMap(mapView);
+
+        this.setStateFragment(savedInstanceState);
 
         return v;
+    }
+
+    public void setStateFragment(Bundle state){
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.content_map_state_frame, new RequestRideStateFragment(), "PassengerMapFragment").commit();
+
     }
 
     /**
@@ -137,7 +139,6 @@ public class PassengerMapFragment extends Fragment implements Observer {
     public void onPause(){
         super.onPause();
         AllTaxis.getInstance().deleteObserver(this);
-        this.unregisterLocationBroadcastManager();
     }
 
     /**
@@ -172,20 +173,14 @@ public class PassengerMapFragment extends Fragment implements Observer {
     /**
      * Initialise map view with user's current location.
      */
-    public void initialiseMap(){
-        map = mapView.getMap();
+    public GoogleMap initialiseMap(MapView mapView){
+        GoogleMap map = mapView.getMap();
         map.getUiSettings().setMyLocationButtonEnabled(false);
         map.getUiSettings().setZoomControlsEnabled(false);
         map.setMyLocationEnabled(true);
         map.setBuildingsEnabled(true);
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-    }
-
-    /**
-     * Unregister from local broadcast manager.
-     */
-    private void unregisterLocationBroadcastManager(){
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
+        return map;
     }
 
     /**
@@ -290,15 +285,6 @@ public class PassengerMapFragment extends Fragment implements Observer {
             // move camera to user's new location
             moveCamera(intent.getDoubleExtra("latitude", 0),
                     intent.getDoubleExtra("longitude", 0));
-        }
-    };
-
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Get extra data included in the Intent
-            String message = intent.getStringExtra("message");
-            Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
         }
     };
 }

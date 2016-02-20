@@ -12,4 +12,10 @@ public class DtbsPreferences {
     public static final String DATA_PICKUP_LOCATION = "pickupLocation";
 
     public static final String LOCATION_EVENT = "locationEvent";
+
+    public static final String NOTIFICATIONS_ENABLED_KEY = "notifications";
+
+    public static final String BOOKING_STATE = "bookingState";
+
+    public static final String ACTIVE_BOOKING = "activeBooking";
 }

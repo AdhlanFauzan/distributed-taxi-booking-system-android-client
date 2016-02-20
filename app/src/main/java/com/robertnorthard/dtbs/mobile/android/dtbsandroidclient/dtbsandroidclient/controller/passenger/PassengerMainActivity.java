@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.AboutFragment;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.SettingsFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.history.BookingHistoryFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.LoginActivity;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Account;
@@ -45,8 +46,8 @@ public class PassengerMainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(PassengerMainActivity.this);
 
         getFragmentManager().beginTransaction().add(R.id.content_frame, new PassengerMapFragment()).commit();
-    }
 
+    }
 
     /**
      * Called when the activity has detected the user's press of the back key.
@@ -111,6 +112,8 @@ public class PassengerMainActivity extends AppCompatActivity
             case R.id.about:
                 fragment = new AboutFragment();
                 break;
+            case R.id.settings:
+                fragment = new SettingsFragment();
         }
 
         // replace fragment if event handled.

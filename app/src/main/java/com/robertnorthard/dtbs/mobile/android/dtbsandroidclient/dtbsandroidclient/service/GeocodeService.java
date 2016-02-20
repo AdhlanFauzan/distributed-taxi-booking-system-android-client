@@ -1,5 +1,7 @@
 package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service;
 
+import android.net.Uri;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Location;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.ConfigService;
@@ -67,7 +69,7 @@ public class GeocodeService {
      */
     public Location addressLookup(String address) throws IOException, JSONException {
         Map<String,String> tokens = new HashMap<>();
-        tokens.put("address", address);
+        tokens.put("address", Uri.encode(address));
 
         String url = ConfigService.getProperty("dtbs.endpoint.geocode.address.lookup");
 

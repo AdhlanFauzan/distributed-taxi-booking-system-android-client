@@ -60,7 +60,6 @@
             android:name=".dtbsandroidclient.service.gps.GpsLocationListener"
             android:exported="false" >
         </service>
-
         <service
             android:name=".dtbsandroidclient.service.gcm.GcmTokenRefreshService"
             android:exported="false" >
@@ -68,7 +67,6 @@
                 <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
         </service>
-
         <service
             android:name=".dtbsandroidclient.service.gcm.GcmRegistrationIntentService"
             android:exported="false" />

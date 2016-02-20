@@ -83,7 +83,7 @@
 
     <FrameLayout
         android:id="@+id/content_map_state_frame"
-        android:layout_height="145dp"
+        android:layout_height="177dp"
         android:layout_width="match_parent"
         android:layout_gravity="left|bottom">
     </FrameLayout>

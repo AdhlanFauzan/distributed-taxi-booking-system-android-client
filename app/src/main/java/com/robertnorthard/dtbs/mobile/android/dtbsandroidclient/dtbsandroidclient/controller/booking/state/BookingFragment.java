@@ -2,6 +2,8 @@ package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclie
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,6 +21,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.passenger.PassengerMapFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Account;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Location;
@@ -68,13 +72,12 @@ public class BookingFragment extends Fragment implements BookingState {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         this.spinnerPassengerCount.setAdapter(adapter);
 
-
         // register login button event handler
         this.btnBookRide.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                new AsyncTask<String, Void, Booking>(){
+                new AsyncTask<String, Void, Booking>() {
 
                     private GeocodeService geocodeService = new GeocodeService();
                     private BookingService bookingService = new BookingService();
@@ -114,7 +117,7 @@ public class BookingFragment extends Fragment implements BookingState {
 
                             return this.bookingService.bookRide(booking);
 
-                        } catch (IOException|JSONException|IllegalArgumentException e) {
+                        } catch (IOException | JSONException | IllegalArgumentException e) {
                             exception = e;
                         }
 
@@ -122,7 +125,7 @@ public class BookingFragment extends Fragment implements BookingState {
                     }
 
 
-                     /**
+                    /**
                      * Handler to manage result of background task.
                      *
                      * @param result result of background task.
@@ -142,11 +145,10 @@ public class BookingFragment extends Fragment implements BookingState {
                         }
 
                         if ((exception != null)) {
-                       //     alertDialog.setMessage(exception.getMessage());
-                      //     alertDialog.show();
-                            awaitTaxi();
-                        }else{
-                            awaitTaxi();
+                            alertDialog.setMessage(exception.getMessage());
+                            alertDialog.show();
+                        } else {
+                            awaitTaxi(result);
                         }
                     }
                 }.execute(txtPickupLocation.getText().toString(), txtDestinationLocation.getText().toString(), spinnerPassengerCount.getSelectedItem().toString());
@@ -157,41 +159,49 @@ public class BookingFragment extends Fragment implements BookingState {
         return v;
     }
 
-    @Override
     public void onDetach() {
         super.onDetach();
     }
 
 
     @Override
-    public void awaitTaxi() {
+    public void awaitTaxi(Booking booking) {
 
-        Fragment awaitingTaxiStateFragment = new AwaitingTaxiStateFragment();
+        // add booking to cache.
+        AllBookings.getInstance().addItem(booking);
 
-        getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_frame, awaitingTaxiStateFragment)
-                .addToBackStack(null)
-                .commit();
+        Fragment f = new AwaitingTaxiStateFragment();
+
+        FragmentManager fm = getFragmentManager();
+
+        Bundle data = new Bundle();
+        data.putLong(DtbsPreferences.ACTIVE_BOOKING, booking.getId());
+        f.setArguments(data);
+
+        FragmentTransaction ft = fm.beginTransaction();
+        fm.popBackStack();
+        ft.replace(R.id.content_map_state_frame, f);
+        ft.addToBackStack(null);
+        ft.commit();
     }
 
     @Override
     public void requestTaxi() {
-        throw new IllegalStateException("Taxi already requested.");
+
     }
 
     @Override
     public void pickupPassenger() {
-        throw new IllegalStateException("Taxi not dispatched.");
+
     }
 
     @Override
     public void dropOffPassenger() {
-        throw new IllegalStateException("Passenger not picked up.");
+
     }
 
     @Override
     public void cancelBooking() {
-        throw new IllegalStateException("Taxi not requested.");
+
     }
 }
