@@ -14,6 +14,8 @@ import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclien
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -46,11 +48,13 @@ public class BookingHistoryFragment extends ListFragment {
             e.printStackTrace();
         }
 
+        // reverse list most recent first
+        Collections.reverse(booking);
+
         BookingHistoryListAdapter bookingHistoryListAdapter
                 = new BookingHistoryListAdapter(getActivity(), booking);
 
         setListAdapter(bookingHistoryListAdapter);
-
     }
 
     @Override
