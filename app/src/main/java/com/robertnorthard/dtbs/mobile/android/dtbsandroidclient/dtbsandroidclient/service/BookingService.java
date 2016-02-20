@@ -119,7 +119,6 @@ public class BookingService {
         List<Booking> bookings = new ArrayList<>();
 
         try{
-
             JSONObject response = this.restClient.sendData(
                     ConfigService.getProperty("dtbs.endpoint.booking.history"), HttpMethod.GET, null);
 
