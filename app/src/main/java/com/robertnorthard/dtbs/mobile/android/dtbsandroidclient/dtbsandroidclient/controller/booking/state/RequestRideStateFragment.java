@@ -10,16 +10,19 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 
 
 /**
  * Represents a request ride booking state.
  */
-public class RequestRideStateFragment extends Fragment {
+public class RequestRideStateFragment extends Fragment implements BookingState {
 
     private Button btnBookTaxi;
     private EditText txtPickupLocation;
+
+    private Fragment nextFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,25 +37,49 @@ public class RequestRideStateFragment extends Fragment {
         txtPickupLocation = (EditText) getActivity().findViewById(R.id.txt_pickup_location);
         btnBookTaxi = (Button)v.findViewById(R.id.btn_request_ride1);
 
-
         btnBookTaxi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Fragment bookingFragment = new BookingFragment();
+
+                nextFragment = new BookingFragment();
 
                 //bundle required data.
                 Bundle data = new Bundle();
                 data.putString(DtbsPreferences.DATA_PICKUP_LOCATION, txtPickupLocation.getText().toString());
-                bookingFragment.setArguments(data);
-
-                getFragmentManager()
-                        .beginTransaction()
-                        .add(R.id.content_frame, bookingFragment)
-                        .addToBackStack(null)
-                        .commit();
+                nextFragment.setArguments(data);
+                requestTaxi();
             }
         });
 
         return v;
+    }
+
+    @Override
+    public void awaitTaxi(Booking booking) {
+        throw new IllegalStateException("Taxi not requested.");
+    }
+
+    @Override
+    public void requestTaxi() {
+        getFragmentManager()
+                .beginTransaction()
+                .add(R.id.content_frame, nextFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void pickupPassenger() {
+        throw new IllegalStateException("Taxi not requested.");
+    }
+
+    @Override
+    public void dropOffPassenger() {
+        throw new IllegalStateException("Taxi not requested.");
+    }
+
+    @Override
+    public void cancelBooking() {
+        throw new IllegalStateException("Taxi not requested.");
     }
 }

@@ -19,5 +19,4 @@ public interface BookingState {
     public void dropOffPassenger();
 
     public void cancelBooking();
-
 }

@@ -34,11 +34,11 @@ public class GcmReceiver extends GcmListenerService {
 
         // extract message and event type.
         String eventType = data.getString("event");
-        String message = data.getString("message");
+        String message = data.getString("status");
 
-        this.broadcastEvent(message,eventType);
+        this.broadcastEvent(eventType, data);
 
-        // send broadcast notifications while app is in background if porperty enabled.
+        // send broadcast notifications while app is in background if property enabled.
         if(PreferenceManager
                 .getDefaultSharedPreferences(
                 getBaseContext())
@@ -52,14 +52,14 @@ public class GcmReceiver extends GcmListenerService {
     }
 
     /**
-     * Broadcast event via custom event intent.
+     * Broadcast event via custom event intent and local broadcast manager.
      */
-    private void broadcastEvent(String message,String eventType){
-        Log.d(TAG, "Broadcasting message - " + message);
+    private void broadcastEvent(String eventType, Bundle extras){
+        Log.d(TAG, "Broadcasting message.");
 
         Intent intent = new Intent(eventType);
+        intent.putExtras(extras);
 
-        intent.putExtra("message", message);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 

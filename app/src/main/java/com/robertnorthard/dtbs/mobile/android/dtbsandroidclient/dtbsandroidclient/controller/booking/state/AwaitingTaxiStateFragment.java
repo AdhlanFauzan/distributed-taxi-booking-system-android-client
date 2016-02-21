@@ -128,11 +128,9 @@ public class AwaitingTaxiStateFragment extends Fragment implements BookingState 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // Get extra data included in the Intent
-            String message = intent.getStringExtra("message");
 
             Fragment fragment = new TaxiDispatchedStateFragment();
-            fragment.setArguments(getArguments());
+            fragment.setArguments(intent.getExtras());
 
             getFragmentManager()
                     .beginTransaction()

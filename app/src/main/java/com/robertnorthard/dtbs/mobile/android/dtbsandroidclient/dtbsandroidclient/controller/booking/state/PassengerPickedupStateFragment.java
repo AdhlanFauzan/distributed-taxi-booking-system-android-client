@@ -15,17 +15,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.utils.datamapper.DataMapper;
 
-import org.w3c.dom.Text;
-
 /**
- * Represents a taxi dispatched booking state.
+ * Represents a passenger picked up state.
  */
-public class TaxiDispatchedStateFragment extends Fragment implements BookingState{
+public class PassengerPickedupStateFragment extends Fragment implements BookingState{
 
     private TextView txtDriverRegistration;
     private TextView txtDriverName;
@@ -34,7 +31,7 @@ public class TaxiDispatchedStateFragment extends Fragment implements BookingStat
 
     private Fragment nextFragment;
 
-    public TaxiDispatchedStateFragment() {
+    public PassengerPickedupStateFragment() {
         // Required empty public constructor
     }
 
@@ -47,7 +44,7 @@ public class TaxiDispatchedStateFragment extends Fragment implements BookingStat
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.fragment_taxi_dispatched_state, container, false);
+        View v = inflater.inflate(R.layout.fragment_passenger_pickedup_state, container, false);
 
         this.txtDriverName = (TextView)v.findViewById(R.id.txt_driver_name);
         this.txtDriverRegistration = (TextView)v.findViewById(R.id.txt_registration);
@@ -67,10 +64,9 @@ public class TaxiDispatchedStateFragment extends Fragment implements BookingStat
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
-            nextFragment = new PassengerPickedupStateFragment();
+            nextFragment = new BookingCompleteStateFragment();
             nextFragment.setArguments(intent.getExtras());
-            pickupPassenger();
+            dropOffPassenger();
         }
     };
 
@@ -86,16 +82,16 @@ public class TaxiDispatchedStateFragment extends Fragment implements BookingStat
 
     @Override
     public void pickupPassenger() {
+        throw new IllegalStateException("Passenger already picked up");
+    }
+
+    @Override
+    public void dropOffPassenger() {
         getFragmentManager()
                 .beginTransaction()
                 .replace(R.id.content_map_state_frame, nextFragment)
                 .addToBackStack(null)
                 .commit();
-    }
-
-    @Override
-    public void dropOffPassenger() {
-        throw new IllegalStateException("Passenger not picked up");
     }
 
     @Override

@@ -14,7 +14,6 @@ public class Booking implements Serializable {
     private int numberPassengers;
     private double cost;
     private Account passenger;
-    private Account driver;
     private Taxi taxi;
     private Route route;
     private String state;
@@ -85,16 +84,8 @@ public class Booking implements Serializable {
         this.passenger = passenger;
     }
 
-    public Account getDriver() {
-        return driver;
-    }
-
-    public void setDriver(Account driver) {
-        this.driver = driver;
-    }
-
     public Taxi getTaxi() {
-        return taxi;
+        return this.taxi;
     }
 
     public void setTaxi(Taxi taxi) {

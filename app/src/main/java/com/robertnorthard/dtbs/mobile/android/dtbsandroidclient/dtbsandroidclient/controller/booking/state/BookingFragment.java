@@ -187,21 +187,21 @@ public class BookingFragment extends Fragment implements BookingState {
 
     @Override
     public void requestTaxi() {
-
+        throw new IllegalStateException("Taxi not requested.");
     }
 
     @Override
     public void pickupPassenger() {
-
+        throw new IllegalStateException("Taxi not requested.");
     }
 
     @Override
     public void dropOffPassenger() {
-
+        throw new IllegalStateException("Taxi not requested.");
     }
 
     @Override
     public void cancelBooking() {
-
+        throw new IllegalStateException("Taxi not requested.");
     }
 }

@@ -12,29 +12,28 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.passenger.PassengerMapFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.utils.datamapper.DataMapper;
 
-import org.w3c.dom.Text;
-
 /**
- * Represents a taxi dispatched booking state.
+ * Represents completed booking state
  */
-public class TaxiDispatchedStateFragment extends Fragment implements BookingState{
+public class BookingCompleteStateFragment extends Fragment implements BookingState {
 
-    private TextView txtDriverRegistration;
-    private TextView txtDriverName;
+    private TextView txtBookingCost;
+    private Button btnConfirmBookingCompletition;
 
     private Booking activeBooking;
 
     private Fragment nextFragment;
 
-    public TaxiDispatchedStateFragment() {
+    public BookingCompleteStateFragment() {
         // Required empty public constructor
     }
 
@@ -47,32 +46,24 @@ public class TaxiDispatchedStateFragment extends Fragment implements BookingStat
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.fragment_taxi_dispatched_state, container, false);
+        View v = inflater.inflate(R.layout.fragment_booking_complete_state, container, false);
 
-        this.txtDriverName = (TextView)v.findViewById(R.id.txt_driver_name);
-        this.txtDriverRegistration = (TextView)v.findViewById(R.id.txt_registration);
+        this.txtBookingCost = (TextView)v.findViewById(R.id.txt_booking_cost);
+        this.btnConfirmBookingCompletition = (Button)v.findViewById(R.id.btn_confirm_booking_completion);
 
         this.activeBooking = DataMapper.getInstance().readObject(getArguments().get("data").toString(), Booking.class);
 
+        this.txtBookingCost.setText(String.valueOf(this.activeBooking.getCost()));
 
-        this.txtDriverName.setText(this.activeBooking.getTaxi().getAccount().getCommonName());
-        this.txtDriverRegistration.setText(this.activeBooking.getTaxi().getVehicle().getNumberplate());
-
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
-                new IntentFilter(DtbsPreferences.BOOKING_EVENTS_TOPIC));
+        this.btnConfirmBookingCompletition.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                completeBooking();
+            }
+        });
 
         return v;
     }
-
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            nextFragment = new PassengerPickedupStateFragment();
-            nextFragment.setArguments(intent.getExtras());
-            pickupPassenger();
-        }
-    };
 
     @Override
     public void awaitTaxi(Booking booking) {
@@ -86,20 +77,27 @@ public class TaxiDispatchedStateFragment extends Fragment implements BookingStat
 
     @Override
     public void pickupPassenger() {
-        getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_map_state_frame, nextFragment)
-                .addToBackStack(null)
-                .commit();
+        throw new IllegalStateException("Passenger already picked up.");
     }
 
     @Override
     public void dropOffPassenger() {
-        throw new IllegalStateException("Passenger not picked up");
+        throw new IllegalStateException("Passenger already dropped off.");
     }
 
     @Override
     public void cancelBooking() {
         throw new IllegalStateException("Booking cancelled.");
+    }
+
+    public void completeBooking(){
+
+        nextFragment = new RequestRideStateFragment();
+
+        getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_map_state_frame, nextFragment)
+                .addToBackStack(null)
+                .commit();
     }
 }
