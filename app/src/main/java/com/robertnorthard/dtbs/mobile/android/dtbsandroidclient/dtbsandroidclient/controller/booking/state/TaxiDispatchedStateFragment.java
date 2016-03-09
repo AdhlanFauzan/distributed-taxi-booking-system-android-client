@@ -1,13 +1,11 @@
 package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state;
 
-import android.app.Activity;
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,8 +17,6 @@ import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclien
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.utils.datamapper.DataMapper;
-
-import org.w3c.dom.Text;
 
 /**
  * Represents a taxi dispatched booking state.
@@ -52,8 +48,11 @@ public class TaxiDispatchedStateFragment extends Fragment implements BookingStat
         this.txtDriverName = (TextView)v.findViewById(R.id.txt_driver_name);
         this.txtDriverRegistration = (TextView)v.findViewById(R.id.txt_registration);
 
-        this.activeBooking = DataMapper.getInstance().readObject(getArguments().get("data").toString(), Booking.class);
-
+        if(getArguments().get("data") == null){
+            this.activeBooking = AllBookings.getInstance().findItem(getArguments().getLong(DtbsPreferences.ACTIVE_BOOKING));
+        }else{
+            this.activeBooking = DataMapper.getInstance().readObject(getArguments().get("data").toString(), Booking.class);
+        }
 
         this.txtDriverName.setText(this.activeBooking.getTaxi().getAccount().getCommonName());
         this.txtDriverRegistration.setText(this.activeBooking.getTaxi().getVehicle().getNumberplate());

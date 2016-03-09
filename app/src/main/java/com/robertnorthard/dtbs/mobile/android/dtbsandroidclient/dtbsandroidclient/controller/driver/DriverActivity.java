@@ -1,5 +1,4 @@
-package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.passenger;
-
+package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.driver;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -22,7 +21,7 @@ import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclien
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.history.BookingHistoryFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Account;
 
-public class PassengerMainActivity extends AppCompatActivity
+public class DriverActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private TextView txtUsername;
@@ -31,7 +30,7 @@ public class PassengerMainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_driver);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -42,45 +41,43 @@ public class PassengerMainActivity extends AppCompatActivity
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(PassengerMainActivity.this);
-
-        getFragmentManager().beginTransaction().add(R.id.content_frame, new PassengerMapFragment()).commit();
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
-    /**
-     * Called when the activity has detected the user's press of the back key.
-     */
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-
-            int count = getFragmentManager().getBackStackEntryCount();
-
-            if (count == 0) {
-                super.onBackPressed();
-            } else {
-                getFragmentManager().popBackStack();
-            }
+            super.onBackPressed();
         }
     }
 
-    /**
-     * Initialize the contents of the Activity's standard options menu.
-     * @param menu menu to initialise.
-     * @return true if successful initialisation else false.
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.driver, menu);
         txtUsername = (TextView)findViewById(R.id.txt_username);
         txtUsername.setText(Account.getInstance().getCommonName() + " " + Account.getInstance().getFamilyName());
         txtEmail = (TextView)findViewById(R.id.txt_email_address);
         txtEmail.setText(Account.getInstance().getEmail());
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -104,9 +101,6 @@ public class PassengerMainActivity extends AppCompatActivity
             case R.id.taxi_history:
                 fragment = new BookingHistoryFragment();
                 break;
-            case R.id.book_taxi:
-                fragment = new PassengerMapFragment();
-                break;
             case R.id.about:
                 fragment = new AboutFragment();
                 break;
@@ -117,7 +111,7 @@ public class PassengerMainActivity extends AppCompatActivity
         // replace fragment if event handled.
         if (fragment != null) {
             FragmentManager fragmentManager = getFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+            fragmentManager.beginTransaction().replace(R.id.content_driver_frame, fragment).commit();
         }else{
             return false;
         }
@@ -127,4 +121,5 @@ public class PassengerMainActivity extends AppCompatActivity
 
         return true;
     }
+
 }

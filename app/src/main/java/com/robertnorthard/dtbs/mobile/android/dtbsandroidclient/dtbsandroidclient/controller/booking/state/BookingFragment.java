@@ -1,17 +1,13 @@
 package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Fragment;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,14 +18,11 @@ import android.widget.Spinner;
 
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.passenger.PassengerMapFragment;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Account;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Location;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.BookingService;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.GeocodeService;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.utils.http.RestClient;
 import com.robertnorthard.dtbs.server.common.dto.BookingDto;
 import com.robertnorthard.dtbs.server.common.dto.LocationDto;
 
@@ -87,7 +80,7 @@ public class BookingFragment extends Fragment implements BookingState {
                     private AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
 
                     /**
-                     * Invoked on sign in button press.
+                     * Invoked booking request.
                      */
                     protected void onPreExecute() {
                         this.dialog.setMessage("Processing Booking...");

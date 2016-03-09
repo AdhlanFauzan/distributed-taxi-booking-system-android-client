@@ -6,7 +6,7 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="AWAITING TAXI ALLOCATION \n Cancel Booking"
+        android:text="@string/txt_awaiting_taxi"
         android:id="@+id/btn_cancel_booking"
         android:gravity="center"
         android:layout_marginLeft="20dp"

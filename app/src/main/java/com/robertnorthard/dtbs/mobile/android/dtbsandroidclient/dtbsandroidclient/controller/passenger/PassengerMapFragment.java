@@ -24,15 +24,14 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.AwaitingTaxiStateFragment;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.BookingFragment;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllTaxis;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.RequestRideStateFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.HourMinutesSecondsFormatter;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.TimeFormatter;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllTaxis;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Taxi;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.gps.GpsLocationListener;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.tasks.CheckActiveBookingAsyncTask;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -120,15 +119,19 @@ public class PassengerMapFragment extends Fragment implements Observer {
         MapsInitializer.initialize(this.getActivity());
         map = this.initialiseMap(mapView);
 
-        this.setStateFragment(savedInstanceState);
+        new CheckActiveBookingAsyncTask(this).execute();
 
         return v;
     }
 
-    public void setStateFragment(Bundle state){
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.content_map_state_frame, new RequestRideStateFragment(), "PassengerMapFragment").commit();
-
+    /**
+     * Set map state based on booking.
+     *
+     * @param fragment map booking state.
+     */
+    public void setBookingState(Fragment fragment){
+        getFragmentManager().beginTransaction()
+                .replace(R.id.content_map_state_frame, fragment, "PassengerMapFragment").commit();
     }
 
     /**
@@ -223,7 +226,9 @@ public class PassengerMapFragment extends Fragment implements Observer {
             LatLng location = new LatLng(t.getLocation().getLatitude(), t.getLocation().getLongitude());
             MarkerOptions options = new MarkerOptions();
             options.position(location);
+            options.title("Numberplate: " + t.getVehicle().getNumberplate());
             options.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_taxi_icon));
+
             map.addMarker(options);
         }
     }

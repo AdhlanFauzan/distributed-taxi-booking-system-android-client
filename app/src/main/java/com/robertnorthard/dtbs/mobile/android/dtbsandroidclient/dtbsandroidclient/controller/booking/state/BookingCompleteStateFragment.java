@@ -1,14 +1,7 @@
 package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state;
 
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.Uri;
-import android.os.Bundle;
 import android.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.passenger.PassengerMapFragment;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.utils.datamapper.DataMapper;
@@ -51,7 +44,11 @@ public class BookingCompleteStateFragment extends Fragment implements BookingSta
         this.txtBookingCost = (TextView)v.findViewById(R.id.txt_booking_cost);
         this.btnConfirmBookingCompletition = (Button)v.findViewById(R.id.btn_confirm_booking_completion);
 
-        this.activeBooking = DataMapper.getInstance().readObject(getArguments().get("data").toString(), Booking.class);
+        if(getArguments().get("data") == null){
+            this.activeBooking = AllBookings.getInstance().findItem(getArguments().getLong(DtbsPreferences.ACTIVE_BOOKING));
+        }else{
+            this.activeBooking = DataMapper.getInstance().readObject(getArguments().get("data").toString(), Booking.class);
+        }
 
         this.txtBookingCost.setText(String.valueOf(this.activeBooking.getCost()));
 

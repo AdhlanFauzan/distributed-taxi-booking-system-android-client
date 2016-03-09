@@ -110,10 +110,7 @@
     </string-array>
 
     <string name="pref_title_system_sync_settings">System sync settings</string>
-
-    <!-- Example settings for Notifications -->
     <string name="pref_header_notifications">Notifications</string>
-
     <string name="pref_title_new_message_notifications">New message notifications</string>
 
     <string name="pref_title_ringtone">Ringtone</string>
@@ -121,5 +118,9 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="title_activity_track_my_taxi">TrackMyTaxi</string>
+    <string name="title_activity_driver">Driver</string>
+    <string name="txt_awaiting_taxi">AWAITING TAXI ALLOCATION \n Cancel Booking</string>
+    <string name="txt_taxi_dispatched">Cancel Booking</string>
+    <string name="msg_booking_view_cancel_taxi">CANCEL TAXI</string>
 
 </resources>

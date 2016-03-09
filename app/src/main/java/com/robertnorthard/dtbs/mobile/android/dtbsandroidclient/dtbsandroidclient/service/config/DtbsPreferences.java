@@ -18,4 +18,6 @@ public class DtbsPreferences {
     public static final String BOOKING_STATE = "bookingState";
 
     public static final String ACTIVE_BOOKING = "activeBooking";
+
+    public static final String BOOKING_ID = "bookingId";
 }

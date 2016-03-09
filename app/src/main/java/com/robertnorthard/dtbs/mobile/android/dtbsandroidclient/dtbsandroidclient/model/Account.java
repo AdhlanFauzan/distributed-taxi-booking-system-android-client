@@ -102,4 +102,8 @@ public class Account implements Serializable{
     public void setGcmRegId(String gcmRegId) {
         this.gcmRegId = gcmRegId;
     }
+
+    public boolean isDriver(){
+        return this.role.equals("DRIVER");
+    }
 }

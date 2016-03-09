@@ -6,20 +6,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.android.gms.iid.InstanceID;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.driver.DriverActivity;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.passenger.PassengerMainActivity;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Account;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.AuthenticationService;
@@ -158,7 +155,12 @@ public class LoginActivity extends AppCompatActivity {
                             }else{
                                 Account.setInstance(result);
                                 RestClient.getInstance().setAuthHeader(result.getUsername(), result.getPassword());
-                                Intent newIntent = new Intent(LoginActivity.this, PassengerMainActivity.class);
+                                Intent newIntent;
+                                if(result.isDriver()){
+                                    newIntent = new Intent(LoginActivity.this, DriverActivity.class);
+                                }else{
+                                    newIntent = new Intent(LoginActivity.this, PassengerMainActivity.class);
+                                }
                                 startActivity(newIntent);
                             }
                         }

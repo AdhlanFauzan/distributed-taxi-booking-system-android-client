@@ -1,6 +1,7 @@
 package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state;
 
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -9,7 +10,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,7 +66,7 @@ public class AwaitingTaxiStateFragment extends Fragment implements BookingState 
                     private AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
 
                     /**
-                     * Invoked on sign in button press.
+                     * Invoked on cancel booking button press.
                      */
                     protected void onPreExecute() {
                         this.dialog.setMessage("Canceling booking...");

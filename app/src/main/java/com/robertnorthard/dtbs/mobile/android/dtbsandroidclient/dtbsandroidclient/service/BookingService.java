@@ -176,4 +176,36 @@ public class BookingService {
             throw e;
         }
     }
+
+    /**
+     * Find active bookings.
+     *
+     * @return active booking, else null.
+     * @throws IOException
+     * @throws JSONException
+     */
+    public Booking findActiveBooking() throws IOException,JSONException {
+
+        try{
+
+            JSONObject response = this.restClient.sendData(
+                    ConfigService.getProperty("dtbs.endpoint.booking.active"), HttpMethod.GET, null);
+
+            JSONObject data = null;
+
+            if(response.getString("status").equals("0")){
+
+                data = response.getJSONObject("data");
+
+                return this.dataMapper.readObject(data.toString(), Booking.class);
+
+            }else{
+                return null;
+            }
+        } catch (IOException e) {
+            throw e;
+        } catch (JSONException e) {
+            throw e;
+        }
+    }
 }

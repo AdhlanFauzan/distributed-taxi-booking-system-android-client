@@ -1,22 +1,19 @@
 package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state;
 
-import android.app.Activity;
-import android.app.Fragment;
-
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
 
 /**
- * An interface to represent a booking state and the potential operations.
+ * An interface to represent a booking state and operations to transition between states.
  */
 public interface BookingState {
 
-    public void awaitTaxi(Booking booking);
+    void awaitTaxi(Booking booking);
 
-    public void requestTaxi();
+    void requestTaxi();
 
-    public void pickupPassenger();
+    void pickupPassenger();
 
-    public void dropOffPassenger();
+    void dropOffPassenger();
 
-    public void cancelBooking();
+    void cancelBooking();
 }

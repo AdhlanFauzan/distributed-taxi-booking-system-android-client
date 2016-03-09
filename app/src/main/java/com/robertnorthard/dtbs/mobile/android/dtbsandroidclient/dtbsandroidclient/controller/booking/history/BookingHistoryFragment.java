@@ -1,20 +1,22 @@
 package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.history;
 
-import android.os.Bundle;
 import android.app.ListFragment;
+import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.StrictMode;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.BookingService;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,6 +26,12 @@ import java.util.List;
  * @author robertnorthard
  */
 public class BookingHistoryFragment extends ListFragment {
+
+    // TAG used for logging.
+    private static final String TAG = BookingHistoryFragment.class.getName();
+
+    private List<Booking> bookings = null;
+    private BookingHistoryListAdapter bookingHistoryListAdapter;
 
     public BookingHistoryFragment() {
         /*
@@ -39,22 +47,33 @@ public class BookingHistoryFragment extends ListFragment {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        List<Booking> booking = null;
-        try {
-            booking = new BookingService().findAllBookings();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        new AsyncTask<Void, Void, Void>() {
 
-        // reverse list most recent first
-        Collections.reverse(booking);
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    bookings = new BookingService().findAllBookings();
+                    AllBookings.getInstance().addBookings(bookings);
 
-        BookingHistoryListAdapter bookingHistoryListAdapter
-                = new BookingHistoryListAdapter(getActivity(), booking);
+                    // reverse list most recent first
+                    Collections.reverse(bookings);
 
-        setListAdapter(bookingHistoryListAdapter);
+                    bookingHistoryListAdapter
+                            = new BookingHistoryListAdapter(getActivity(), bookings);
+
+                } catch (IOException| JSONException e) {
+                    Log.e(TAG, e.getMessage());
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                super.onPostExecute(result);
+                setListAdapter(bookingHistoryListAdapter);
+            }
+        }.execute();
     }
 
     @Override
@@ -72,6 +91,15 @@ public class BookingHistoryFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
+
+        Bundle data = new Bundle();
+        data.putLong(DtbsPreferences.BOOKING_ID, this.bookings.get(position).getId());
+        BookingViewFragment bookingViewFragment = new BookingViewFragment();
+        bookingViewFragment.setArguments(data);
+
+        getFragmentManager().beginTransaction()
+                .replace(R.id.content_frame, bookingViewFragment, "BookingViewFragment").commit();
+
         super.onListItemClick(l, v, position, id);
     }
 }

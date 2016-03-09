@@ -11,7 +11,6 @@ import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Booking history list custom adapter.

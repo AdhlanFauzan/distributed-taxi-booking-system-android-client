@@ -3,6 +3,7 @@ package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclie
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,6 +27,12 @@ public class AllBookings implements Cache<Long,Booking> {
 
     private AllBookings(){
         this.bookings = new ConcurrentHashMap<>();
+    }
+
+    public void addBookings(List<Booking> bookings){
+        for(Booking b: bookings){
+            this.addItem(b);
+        }
     }
 
     @Override
