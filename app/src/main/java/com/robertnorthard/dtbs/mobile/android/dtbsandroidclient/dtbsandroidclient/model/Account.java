@@ -103,6 +103,7 @@ public class Account implements Serializable{
         this.gcmRegId = gcmRegId;
     }
 
+    @JsonIgnore
     public boolean isDriver(){
         return this.role.equals("DRIVER");
     }
