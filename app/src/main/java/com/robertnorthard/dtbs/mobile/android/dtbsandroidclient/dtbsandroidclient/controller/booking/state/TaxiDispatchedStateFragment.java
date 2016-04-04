@@ -67,9 +67,11 @@ public class TaxiDispatchedStateFragment extends Fragment implements BookingStat
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            nextFragment = new PassengerPickedupStateFragment();
-            nextFragment.setArguments(intent.getExtras());
-            pickupPassenger();
+            if(intent.getStringExtra("status").equals("PASSENGER_PICKED_UP")) {
+                nextFragment = new PassengerPickedupStateFragment();
+                nextFragment.setArguments(intent.getExtras());
+                pickupPassenger();
+            }
         }
     };
 

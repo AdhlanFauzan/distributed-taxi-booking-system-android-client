@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -36,8 +37,9 @@ import java.io.IOException;
  */
 public class BookingFragment extends Fragment implements BookingState {
 
-    private EditText txtPickupLocation;
-    private EditText txtDestinationLocation;
+
+    private AutoCompleteTextView txtPickupLocation;
+    private AutoCompleteTextView txtDestinationLocation;
     private Spinner spinnerPassengerCount;
     private Button btnBookRide;
 
@@ -53,12 +55,15 @@ public class BookingFragment extends Fragment implements BookingState {
 
         String pickupLocation = getArguments().getString(DtbsPreferences.DATA_PICKUP_LOCATION);
 
-        this.txtPickupLocation = (EditText)v.findViewById(R.id.txt_pickup_location);
-        this.txtDestinationLocation = (EditText)v.findViewById(R.id.txt_destination_location);
+        this.txtPickupLocation = (AutoCompleteTextView)v.findViewById(R.id.txt_pickup_location);
+        this.txtDestinationLocation = (AutoCompleteTextView)v.findViewById(R.id.txt_destination_location);
         this.spinnerPassengerCount = (Spinner) v.findViewById(R.id.spinner_number_passengers);
         this.btnBookRide = (Button)v.findViewById(R.id.btn_request_ride);
 
+        this.txtDestinationLocation.setAdapter(new AutoCompleteBookingAdapter(getActivity(),R.layout.auto_complete_address_layout));
+
         this.txtPickupLocation.setText(pickupLocation);
+        this.txtPickupLocation.setAdapter(new AutoCompleteBookingAdapter(getActivity(),R.layout.auto_complete_address_layout));
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.spinner_number_passengers, android.R.layout.simple_spinner_dropdown_item);

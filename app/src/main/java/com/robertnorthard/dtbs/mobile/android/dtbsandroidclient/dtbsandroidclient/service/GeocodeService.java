@@ -77,7 +77,7 @@ public class GeocodeService {
             JSONObject json = RestClient.getInstance().sendData(ConfigService.parseProperty(url, tokens), HttpMethod.GET, null);
 
             if(json.getString("status").equals("0")) {
-                return this.dataMapper.readObject(json.getString("data"),Location.class);
+                return this.dataMapper.readObject(json.getString("data"), Location.class);
             }else{
                 throw new IllegalArgumentException(json.getString("data"));
             }
@@ -109,6 +109,26 @@ public class GeocodeService {
 
             if(json.getString("status").equals("0")) {
                 return json.getInt("data");
+            }else{
+                throw new IllegalArgumentException(json.getString("data"));
+            }
+        } catch (IOException|JSONException e) {
+            throw e;
+        }
+    }
+
+    public String findAddress(String address) throws IOException, JSONException {
+        Map<String,String> tokens = new HashMap<>();
+        tokens.put("address",String.valueOf(address).replaceAll(" ", "%20"));
+
+        String url = ConfigService.getProperty("dtbs.endpoint.geocode.address.lookup.text");
+
+        try {
+
+            JSONObject json = RestClient.getInstance().sendData(ConfigService.parseProperty(url, tokens), HttpMethod.GET, null);
+
+            if(json.getString("status").equals("0")) {
+                return json.getString("data");
             }else{
                 throw new IllegalArgumentException(json.getString("data"));
             }

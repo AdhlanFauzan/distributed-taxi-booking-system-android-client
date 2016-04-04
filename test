@@ -1,0 +1,12 @@
+870419e	Robert Northard	2016-03-13	Changed gradle build tools version
+7f391dd	Robert Northard	2016-03-09	Added JSON ignore to account class.
+5771c3b	Robert Northard	2016-03-09	Removed unused imports
+b20f978	Robert Northard	2016-03-09	Removed booking states class
+7c27e5a	Robert Northard	2016-03-09	Added async tasks for booking history and ability to go back to previous state on app close.
+bb203a2	Robert Northard	2016-02-21	Added complete booking and passenger pickup booking states.
+ec6fd57	Robert Northard	2016-02-20	Updated awaiting taxi layout XML to reduce screen realestate.
+bfaef31	Robert Northard	2016-02-20	Removed toast message on booking history item click.
+6ac87cd	Robert Northard	2016-02-20	Reverse booking history list so most recent is at the top.
+ce3e652	Robert Northard	2016-02-20	Added ability to cancel booking and state transitions for booking state
+c7fe8ec	Robert Northard	2016-02-19	Added mock profile image to navigation drawer.
+77bf2f0	Robert Northard	2016-02-19	Initialised repository with android application structure.

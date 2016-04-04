@@ -42,8 +42,9 @@ public class TaxiEventsService implements Observer {
         this.geocodeService = new GeocodeService();
         this.taxiService = new TaxiService();
 
-        MessageEventBus.getInstance().addObserver(this);
-        MessageEventBus.getInstance().open();
+        MessageEventBus bus = MessageEventBus.getInstance();
+        bus.addObserver(this);
+        bus.open();
     }
 
     /**
@@ -65,7 +66,10 @@ public class TaxiEventsService implements Observer {
      * @param location last known location of user.
      */
     public void updateLocation(Location location){
+
         this.currentLocation = location;
+
+        MessageEventBus.getInstance().sendData(location);
     }
 
     /**

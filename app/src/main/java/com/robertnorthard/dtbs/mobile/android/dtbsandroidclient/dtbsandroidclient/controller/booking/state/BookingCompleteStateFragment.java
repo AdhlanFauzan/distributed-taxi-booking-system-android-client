@@ -50,7 +50,7 @@ public class BookingCompleteStateFragment extends Fragment implements BookingSta
             this.activeBooking = DataMapper.getInstance().readObject(getArguments().get("data").toString(), Booking.class);
         }
 
-        this.txtBookingCost.setText(String.valueOf(this.activeBooking.getCost()));
+        this.txtBookingCost.setText("£" + String.valueOf(this.activeBooking.getCost()));
 
         this.btnConfirmBookingCompletition.setOnClickListener(new View.OnClickListener() {
             @Override

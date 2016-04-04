@@ -28,13 +28,14 @@ public class MessageEventBus extends Observable{
     private WebSocketClient webSocketClient;
 
     private MessageEventBus(){
-        // private as singleton
+        initiateWebSocket();
     }
 
     /**
      * @return a single instance of MessageEventBus. If null create new.
      */
     public static MessageEventBus getInstance(){
+        //String gridReference
         if(MessageEventBus.messageEventBus == null){
             synchronized(MessageEventBus.class){
                 MessageEventBus.messageEventBus = new MessageEventBus();
@@ -54,7 +55,7 @@ public class MessageEventBus extends Observable{
 
         URI uri;
         try {
-            uri = new URI(ConfigService.getProperty("dtbs.endpoint.taxi.location.subscribe"));
+            uri = new URI(ConfigService.getProperty("dtbs.endpoint.taxi.location.subscribe.grid"));
         } catch (URISyntaxException e) {
             Log.d(TAG, e.getMessage());
             return;
@@ -87,6 +88,10 @@ public class MessageEventBus extends Observable{
         };
 
         this.webSocketClient.connect();
+    }
+
+    public void sendData(Object object){
+        this.webSocketClient.send(DataMapper.getInstance().getObjectAsJson(object));
     }
 
     /**

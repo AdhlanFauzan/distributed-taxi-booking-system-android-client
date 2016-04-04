@@ -9,8 +9,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.GeocodeService;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.communication.event.MessageEventBus;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.communication.event.TaxiEventsService;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 
@@ -77,19 +79,6 @@ public class GpsLocationListener extends Service implements android.location.Loc
         return this.location.getLongitude();
     }
 
-    /**
-     * Broadcast location event.
-     */
-    private void broadcastLocationEvent(){
-        Intent intent = new Intent(DtbsPreferences.LOCATION_EVENT);
-
-        intent.putExtra("latitude", this.location.getLatitude());
-        intent.putExtra("longitude", this.location.getLongitude());
-        intent.putExtra("address", this.address);
-
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
@@ -107,7 +96,7 @@ public class GpsLocationListener extends Service implements android.location.Loc
     /**
      * Invoke on GPS location change.
      *
-     * @param location user's location.
+     * @param location updated user's location.
      */
     @Override
     public void onLocationChanged(final Location location) {
@@ -124,12 +113,27 @@ public class GpsLocationListener extends Service implements android.location.Loc
             address = null;
         }
 
-        taxiEventsService.updateLocation(
-                new com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Location(
-                        location.getLatitude(),
-                        location.getLongitude()));
+        com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Location
+                newLocation = new com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Location(
+                location.getLatitude(),
+                location.getLongitude());
+
+        taxiEventsService.updateLocation(newLocation);
 
         broadcastLocationEvent();
+    }
+
+    /**
+     * Broadcast location event.
+     */
+    private void broadcastLocationEvent(){
+        Intent intent = new Intent(DtbsPreferences.LOCATION_EVENT);
+
+        intent.putExtra("latitude", this.location.getLatitude());
+        intent.putExtra("longitude", this.location.getLongitude());
+        intent.putExtra("address", this.address);
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     @Override
