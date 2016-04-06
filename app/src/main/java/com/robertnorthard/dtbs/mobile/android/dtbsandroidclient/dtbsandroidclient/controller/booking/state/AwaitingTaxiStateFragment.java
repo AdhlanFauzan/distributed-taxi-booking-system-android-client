@@ -2,6 +2,7 @@ package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclie
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,6 +12,7 @@ import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,8 +33,11 @@ import java.io.IOException;
  */
 public class AwaitingTaxiStateFragment extends Fragment implements BookingState {
 
+    private static final String TAG = AwaitingTaxiStateFragment.class.getName();
+
     private Button btnCancelBooking;
     private Booking activeBooking;
+    private Fragment nextFragment;
 
     public AwaitingTaxiStateFragment() {
         // fragments require empty constructor
@@ -51,6 +56,8 @@ public class AwaitingTaxiStateFragment extends Fragment implements BookingState 
 
         this.btnCancelBooking = (Button)v.findViewById(R.id.btn_cancel_booking);
         this.activeBooking = AllBookings.getInstance().findItem(getArguments().getLong(DtbsPreferences.ACTIVE_BOOKING));
+
+        AllBookings.getInstance().setActiveBooking(this.activeBooking);
 
         // btnCancelBooking login button event handler
         this.btnCancelBooking.setOnClickListener(new View.OnClickListener() {
@@ -78,7 +85,6 @@ public class AwaitingTaxiStateFragment extends Fragment implements BookingState 
                     protected Void doInBackground(Long... params) {
 
                         try {
-
                             bookingService.cancelBooking(params[0]);
                         } catch (IOException | JSONException | IllegalArgumentException e) {
                             exception = e;
@@ -128,15 +134,9 @@ public class AwaitingTaxiStateFragment extends Fragment implements BookingState 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
-            Fragment fragment = new TaxiDispatchedStateFragment();
-            fragment.setArguments(intent.getExtras());
-
-            getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.content_map_state_frame, fragment)
-                    .addToBackStack(null)
-                    .commit();
+            nextFragment = new TaxiDispatchedStateFragment();
+            nextFragment.setArguments(intent.getExtras());
+            taxiDispatched();
         }
     };
 
@@ -151,6 +151,24 @@ public class AwaitingTaxiStateFragment extends Fragment implements BookingState 
     }
 
     @Override
+    public void taxiDispatched(){
+        FragmentManager fm = getFragmentManager();
+
+        try{
+            View view  = getActivity().findViewById(R.id.content_map_state_frame);
+
+            if(view != null) {
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.content_map_state_frame, nextFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        }catch(Exception ex){
+            Log.e(TAG, ex.getMessage());
+        }
+    }
+
+    @Override
     public void pickupPassenger() {
         throw new IllegalStateException("Awaiting taxi allocation.");
     }
@@ -162,10 +180,21 @@ public class AwaitingTaxiStateFragment extends Fragment implements BookingState 
 
     @Override
     public void cancelBooking() {
-        getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_map_state_frame, new RequestRideStateFragment())
-                .addToBackStack(null)
-                .commit();
+
+        AllBookings.getInstance().setActiveBooking(null);
+
+        try{
+            View view  = getActivity().findViewById(R.id.content_map_state_frame);
+
+            if(view != null) {
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.content_map_state_frame, new RequestRideStateFragment())
+                        .addToBackStack(null)
+                        .commit();
+            }
+        }catch(Exception ex){
+            Log.e(TAG, ex.getMessage());
+        }
     }
 }

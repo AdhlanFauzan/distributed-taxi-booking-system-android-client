@@ -24,11 +24,13 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllTaxis;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.RequestRideStateFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.HourMinutesSecondsFormatter;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.TimeFormatter;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Taxi;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.TaxiStates;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.gps.GpsLocationListener;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.tasks.CheckActiveBookingAsyncTask;
@@ -198,7 +200,6 @@ public class PassengerMapFragment extends Fragment implements Observer {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-
                 redrawGoogleMap();
 
                 /*
@@ -222,15 +223,31 @@ public class PassengerMapFragment extends Fragment implements Observer {
 
         map.clear();
 
-        for (Taxi t : allTaxis.findAll()) {
-            LatLng location = new LatLng(t.getLocation().getLatitude(), t.getLocation().getLongitude());
-            MarkerOptions options = new MarkerOptions();
-            options.position(location);
-            options.title("Numberplate: " + t.getVehicle().getNumberplate());
-            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_taxi_icon));
 
-            map.addMarker(options);
+        AllBookings bookings = AllBookings.getInstance();
+
+        for (Taxi t : allTaxis.findAll()) {
+
+            if(bookings.activeBooking() && bookings.taxiIsActive(t.getId())
+                    || (bookings.activeBooking() && bookings.getActive().awaitingTaxiDispatch())){
+                this.updateMap(t);
+            }else if(!bookings.activeBooking() && t.onDuty()){
+                this.updateMap(t);
+            }
         }
+    }
+
+    /**
+     * Update map with taxi.
+     */
+    private void updateMap(Taxi t){
+        LatLng location = new LatLng(t.getLocation().getLatitude(), t.getLocation().getLongitude());
+        MarkerOptions options = new MarkerOptions();
+        options.position(location);
+        options.title("Numberplate: " + t.getVehicle().getNumberplate());
+        options.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_taxi_icon));
+
+        map.addMarker(options);
     }
 
     /**

@@ -2,6 +2,7 @@ package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclie
 
 import android.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,8 @@ import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclien
  * Represents completed booking state
  */
 public class BookingCompleteStateFragment extends Fragment implements BookingState {
+
+    private static final String TAG = BookingCompleteStateFragment.class.getName();
 
     private TextView txtBookingCost;
     private Button btnConfirmBookingCompletition;
@@ -87,14 +90,29 @@ public class BookingCompleteStateFragment extends Fragment implements BookingSta
         throw new IllegalStateException("Booking cancelled.");
     }
 
+    @Override
+    public void taxiDispatched() {
+        throw new IllegalStateException("Booking completed.");
+    }
+
     public void completeBooking(){
+
+        AllBookings.getInstance().setActiveBooking(null);
 
         nextFragment = new RequestRideStateFragment();
 
-        getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_map_state_frame, nextFragment)
-                .addToBackStack(null)
-                .commit();
+        try{
+            View view  = getActivity().findViewById(R.id.content_map_state_frame);
+
+            if(view != null) {
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.content_map_state_frame, nextFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        }catch(Exception ex){
+            Log.e(TAG, ex.getMessage());
+        }
     }
 }

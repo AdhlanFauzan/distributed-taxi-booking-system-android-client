@@ -54,7 +54,16 @@ public class AllTaxis extends Observable implements Cache<Long,Taxi> {
         int movingAverage = 0;
 
         for(Taxi taxi : this.taxis.values()){
-            movingAverage += taxi.getTimeFromPassenger();
+
+            AllBookings bookings = AllBookings.getInstance();
+
+            if(taxi.onDuty() && !bookings.activeBooking()
+                    || (bookings.activeBooking() && bookings.getActive().awaitingTaxiDispatch())) {
+
+                movingAverage += taxi.getTimeFromPassenger();
+            }else if(bookings.activeBooking() && bookings.taxiIsActive(taxi.getId())){
+                movingAverage += taxi.getTimeFromPassenger();
+            }
         }
 
         // prevent divide by zero error

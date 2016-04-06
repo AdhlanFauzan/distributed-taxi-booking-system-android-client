@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.BookingService;
 
 import org.json.JSONException;
@@ -72,6 +73,7 @@ public class CancelTaxiBookingAsyncTask  extends AsyncTask<Long,Void,Boolean> {
 
         if (this.dialog.isShowing()) {
             this.dialog.dismiss();
+            AllBookings.getInstance().setActiveBooking(null);
         }
         if(this.exception != null) {
             alertDialog.setMessage(exception.getMessage());

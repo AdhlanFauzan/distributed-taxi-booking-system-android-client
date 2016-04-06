@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,8 @@ import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclien
  * Represents a taxi dispatched booking state.
  */
 public class TaxiDispatchedStateFragment extends Fragment implements BookingState{
+
+    private static final String TAG = TaxiDispatchedStateFragment.class.getName();
 
     private TextView txtDriverRegistration;
     private TextView txtDriverName;
@@ -54,6 +57,8 @@ public class TaxiDispatchedStateFragment extends Fragment implements BookingStat
             this.activeBooking = DataMapper.getInstance().readObject(getArguments().get("data").toString(), Booking.class);
         }
 
+        AllBookings.getInstance().setActiveBooking(this.activeBooking);
+
         this.txtDriverName.setText(this.activeBooking.getTaxi().getAccount().getCommonName());
         this.txtDriverRegistration.setText(this.activeBooking.getTaxi().getVehicle().getNumberplate());
 
@@ -66,11 +71,15 @@ public class TaxiDispatchedStateFragment extends Fragment implements BookingStat
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
             if(intent.getStringExtra("status").equals("PASSENGER_PICKED_UP")) {
-                nextFragment = new PassengerPickedupStateFragment();
-                nextFragment.setArguments(intent.getExtras());
-                pickupPassenger();
+
+                View view  = getActivity().findViewById(R.id.content_map_state_frame);
+
+                if(view != null) {
+                    nextFragment = new PassengerPickedupStateFragment();
+                    nextFragment.setArguments(intent.getExtras());
+                    pickupPassenger();
+                }
             }
         }
     };
@@ -87,11 +96,19 @@ public class TaxiDispatchedStateFragment extends Fragment implements BookingStat
 
     @Override
     public void pickupPassenger() {
-        getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_map_state_frame, nextFragment)
-                .addToBackStack(null)
-                .commit();
+        try{
+            View view  = getActivity().findViewById(R.id.content_map_state_frame);
+
+            if(view != null) {
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.content_map_state_frame, nextFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        }catch(Exception ex){
+            Log.e(TAG, ex.getMessage());
+        }
     }
 
     @Override
@@ -102,5 +119,10 @@ public class TaxiDispatchedStateFragment extends Fragment implements BookingStat
     @Override
     public void cancelBooking() {
         throw new IllegalStateException("Booking cancelled.");
+    }
+
+    @Override
+    public void taxiDispatched() {
+        throw new IllegalStateException("Taxi already dispatched.");
     }
 }

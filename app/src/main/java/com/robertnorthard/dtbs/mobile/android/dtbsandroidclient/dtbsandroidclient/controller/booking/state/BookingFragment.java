@@ -8,6 +8,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,7 @@ import com.robertnorthard.dtbs.server.common.dto.LocationDto;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A controller class to handler all related activities
@@ -145,6 +147,13 @@ public class BookingFragment extends Fragment implements BookingState {
                         if ((exception != null)) {
                             alertDialog.setMessage(exception.getMessage());
                             alertDialog.show();
+                            try {
+                                AllBookings.getInstance().setActiveBooking(this.get());
+                            } catch (InterruptedException e) {
+                                Log.e("BookingFragment", e.getMessage());
+                            } catch (ExecutionException e) {
+                                Log.e("BookingFragment", e.getMessage());
+                            }
                         } else {
                             awaitTaxi(result);
                         }
@@ -200,6 +209,11 @@ public class BookingFragment extends Fragment implements BookingState {
 
     @Override
     public void cancelBooking() {
+        throw new IllegalStateException("Taxi not requested.");
+    }
+
+    @Override
+    public void taxiDispatched() {
         throw new IllegalStateException("Taxi not requested.");
     }
 }

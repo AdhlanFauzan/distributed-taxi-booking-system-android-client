@@ -16,4 +16,6 @@ public interface BookingState {
     void dropOffPassenger();
 
     void cancelBooking();
+
+    void taxiDispatched();
 }

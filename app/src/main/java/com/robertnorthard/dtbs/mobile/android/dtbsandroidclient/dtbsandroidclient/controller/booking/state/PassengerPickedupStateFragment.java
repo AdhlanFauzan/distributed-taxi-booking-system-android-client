@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,8 @@ import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclien
  * Represents a passenger picked up state.
  */
 public class PassengerPickedupStateFragment extends Fragment implements BookingState{
+
+    private static final String TAG = PassengerPickedupStateFragment.class.getName();
 
     private TextView txtDriverRegistration;
     private TextView txtDriverName;
@@ -53,6 +56,8 @@ public class PassengerPickedupStateFragment extends Fragment implements BookingS
         }else{
             this.activeBooking = DataMapper.getInstance().readObject(getArguments().get("data").toString(), Booking.class);
         }
+
+        AllBookings.getInstance().setActiveBooking(this.activeBooking);
 
         this.txtDriverName.setText(this.activeBooking.getTaxi().getAccount().getCommonName());
         this.txtDriverRegistration.setText(this.activeBooking.getTaxi().getVehicle().getNumberplate());
@@ -89,15 +94,29 @@ public class PassengerPickedupStateFragment extends Fragment implements BookingS
 
     @Override
     public void dropOffPassenger() {
-        getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_map_state_frame, nextFragment)
-                .addToBackStack(null)
-                .commit();
+        try{
+            View view  = getActivity().findViewById(R.id.content_map_state_frame);
+
+            if(view != null) {
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.content_map_state_frame, nextFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+
+        }catch(Exception ex){
+            Log.e(TAG, ex.getMessage());
+        }
     }
 
     @Override
     public void cancelBooking() {
         throw new IllegalStateException("Booking cancelled.");
+    }
+
+    @Override
+    public void taxiDispatched() {
+        throw new IllegalStateException("Passenger already picked up.");
     }
 }
