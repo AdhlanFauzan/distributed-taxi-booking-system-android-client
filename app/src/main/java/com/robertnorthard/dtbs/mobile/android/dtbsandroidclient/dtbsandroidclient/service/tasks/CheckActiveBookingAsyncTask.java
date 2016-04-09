@@ -59,7 +59,10 @@ public class CheckActiveBookingAsyncTask extends AsyncTask<Void, Void, Booking>{
             if(activeBooking != null){
 
                 // convert location to correct format
-                LatLng currentLocation = new LatLng(activeBooking.getRoute().getStartAddress().getLocation().getLatitude(),activeBooking.getRoute().getStartAddress().getLocation().getLongitude());
+                LatLng currentLocation = new LatLng(
+                        activeBooking.getRoute().getStartAddress().getLocation().getLatitude(),
+                        activeBooking.getRoute().getStartAddress().getLocation().getLongitude());
+
                 Location location = activeBooking.getRoute().getEndAddress().getLocation();
                 LatLng destinationLocation = new LatLng(location.getLatitude(), location.getLongitude());
 

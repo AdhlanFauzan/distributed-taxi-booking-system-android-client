@@ -57,7 +57,6 @@ public class AwaitingTaxiStateFragment extends Fragment implements BookingState 
         this.btnCancelBooking = (Button)v.findViewById(R.id.btn_cancel_booking);
         this.activeBooking = AllBookings.getInstance().getActive();
 
-        // btnCancelBooking login button event handler
         this.btnCancelBooking.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,7 +89,6 @@ public class AwaitingTaxiStateFragment extends Fragment implements BookingState 
 
                         return null;
                     }
-
 
                     /**
                      * Handler to manage result of background task.
@@ -150,8 +148,6 @@ public class AwaitingTaxiStateFragment extends Fragment implements BookingState 
 
     @Override
     public void taxiDispatched(){
-        FragmentManager fm = getFragmentManager();
-
         try{
             View view  = getActivity().findViewById(R.id.content_map_state_frame);
 
@@ -180,6 +176,10 @@ public class AwaitingTaxiStateFragment extends Fragment implements BookingState 
     public void cancelBooking() {
 
         AllBookings.getInstance().setActiveBooking(null);
+
+        // notify map fragment that it should be redrawn.
+        Intent intent = new Intent(DtbsPreferences.MAP_REDRAW_EVENTS_TOPIC);
+        LocalBroadcastManager.getInstance(AwaitingTaxiStateFragment.this.getActivity().getBaseContext()).sendBroadcast(intent);
 
         try{
             View view  = getActivity().findViewById(R.id.content_map_state_frame);

@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by robertnorthard on 13/02/16.
+ * Route domain model class.
+ *
+ * @author robertnorthard
  */
 public class Route implements Serializable {
 
@@ -18,15 +20,6 @@ public class Route implements Serializable {
     private List<Location> path = new ArrayList<>();
 
     public Route(){}
-
-    public Route(Address startAddress, Address endAddress,
-                 double distance, double estimateTravelTime, List<Location> path) {
-        this.startAddress = startAddress;
-        this.endAddress = endAddress;
-        this.distance = distance;
-        this.estimateTravelTime = estimateTravelTime;
-        this.path = path;
-    }
 
     public Address getStartAddress() {
         return startAddress;
@@ -79,6 +72,7 @@ public class Route implements Serializable {
     }
 
     public void setLatLngPath(List<LatLng> path){
+        this.path.clear();
         for(LatLng latLng : path){
             this.path.add(new Location(latLng.latitude, latLng.longitude));
         }

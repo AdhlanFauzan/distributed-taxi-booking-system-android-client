@@ -1,9 +1,11 @@
 package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.history;
 
 import android.app.ListFragment;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
@@ -96,6 +98,10 @@ public class BookingHistoryFragment extends ListFragment {
         data.putLong(DtbsPreferences.BOOKING_ID, this.bookings.get(position).getId());
         BookingViewFragment bookingViewFragment = new BookingViewFragment();
         bookingViewFragment.setArguments(data);
+
+        // notify map fragment that it should be redrawn.
+        Intent intent = new Intent(DtbsPreferences.MAP_REDRAW_EVENTS_TOPIC);
+        LocalBroadcastManager.getInstance(BookingHistoryFragment.this.getActivity().getBaseContext()).sendBroadcast(intent);
 
         getFragmentManager().beginTransaction()
                 .replace(R.id.content_frame, bookingViewFragment, "BookingViewFragment").commit();

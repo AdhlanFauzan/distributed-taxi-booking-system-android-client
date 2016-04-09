@@ -6,8 +6,10 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.Spinner;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
@@ -29,6 +32,7 @@ import com.robertnorthard.dtbs.server.common.dto.LocationDto;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * A controller class to handler all related activities
@@ -91,7 +95,9 @@ public class BookingFragment extends Fragment implements BookingState {
                         this.dialog.show();
                     }
 
-
+                    /**
+                     * Make a booking and if valid, calculate the route to display.
+                     */
                     @Override
                     protected Booking doInBackground(String... params) {
 
@@ -112,7 +118,23 @@ public class BookingFragment extends Fragment implements BookingState {
 
                             booking.setNumberPassengers(numberPassengers);
 
-                            return this.bookingService.bookRide(booking);
+                            Booking newBooking = this.bookingService.bookRide(booking);
+
+                            if(booking != null){
+                                AllBookings.getInstance().setActiveBooking(newBooking);
+
+                                LatLng currentLocation = new LatLng(
+                                        startLocation.getLatitude(),
+                                        startLocation.getLongitude());
+
+                                LatLng destinationLocation = new LatLng(endLocation.getLatitude(), endLocation.getLongitude());
+
+                                List<LatLng> route = this.geocodeService.getRoute(currentLocation,destinationLocation);
+
+                                newBooking.getRoute().setLatLngPath(route);
+                            }
+
+                            return newBooking;
 
                         } catch (IOException | JSONException | IllegalArgumentException e) {
                             exception = e;
@@ -144,7 +166,6 @@ public class BookingFragment extends Fragment implements BookingState {
                         if ((exception != null || result == null)) {
                             alertDialog.setMessage(exception.getMessage());
                             alertDialog.show();
-                            AllBookings.getInstance().setActiveBooking(result);
                         } else {
                             awaitTaxi(result);
                         }
@@ -181,6 +202,10 @@ public class BookingFragment extends Fragment implements BookingState {
         ft.replace(R.id.content_map_state_frame, f);
         ft.addToBackStack(null);
         ft.commit();
+
+        // notify map fragment that it should be redrawn.
+        Intent intent = new Intent(DtbsPreferences.MAP_REDRAW_EVENTS_TOPIC);
+        LocalBroadcastManager.getInstance(BookingFragment.this.getActivity().getBaseContext()).sendBroadcast(intent);
     }
 
     @Override

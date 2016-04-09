@@ -13,6 +13,6 @@ public interface CurrencyFormatter {
      * @param currency to convert
      * @return currency formatted as currency.
      */
-    public String format(double currency);
+    String format(double currency);
 
 }

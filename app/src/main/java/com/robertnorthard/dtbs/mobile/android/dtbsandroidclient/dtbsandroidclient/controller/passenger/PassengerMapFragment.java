@@ -27,6 +27,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllTaxis;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.AwaitingTaxiStateFragment;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.TaxiDispatchedStateFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.HourMinutesSecondsFormatter;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.TimeFormatter;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Taxi;
@@ -124,12 +126,13 @@ public class PassengerMapFragment extends Fragment implements Observer {
         MapsInitializer.initialize(this.getActivity());
         map = this.initialiseMap(mapView);
 
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRedrawMapMessageReceiver,
+                new IntentFilter(DtbsPreferences.MAP_REDRAW_EVENTS_TOPIC));
+
         try {
             AllBookings.getInstance().setActiveBooking(new CheckActiveBookingAsyncTask(this).execute().get());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
+        } catch (InterruptedException|ExecutionException e) {
+           Log.e(TAG, e.getMessage());
         }
 
         return v;
@@ -234,7 +237,6 @@ public class PassengerMapFragment extends Fragment implements Observer {
 
         map.clear();
 
-
         AllBookings bookings = AllBookings.getInstance();
 
         for (Taxi t : allTaxis.findAll()) {
@@ -260,7 +262,7 @@ public class PassengerMapFragment extends Fragment implements Observer {
             List<LatLng> path = allBookings.getActive().getRoute().getLatLngPath();
             PolylineOptions routePolyLine = new PolylineOptions();
             routePolyLine.addAll(path);
-            routePolyLine.width(4);
+            routePolyLine.width(6);
             routePolyLine.color(Color.RED);
             map.addPolyline(routePolyLine);
         }
@@ -341,4 +343,13 @@ public class PassengerMapFragment extends Fragment implements Observer {
             redrawGoogleMap();
         }
     };
+
+
+    private BroadcastReceiver mRedrawMapMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            redrawGoogleMap();
+        }
+    };
+
 }

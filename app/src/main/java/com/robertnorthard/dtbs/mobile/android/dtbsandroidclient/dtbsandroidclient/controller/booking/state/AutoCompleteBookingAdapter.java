@@ -1,6 +1,7 @@
 package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 
@@ -14,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AutoCompleteBookingAdapter extends ArrayAdapter {
+
+    private static final String TAG = AutoCompleteBookingAdapter.class.getName();
 
     public AutoCompleteBookingAdapter(Context context, int resource) {
         super(context, resource);
@@ -44,13 +47,10 @@ public class AutoCompleteBookingAdapter extends ArrayAdapter {
                 result.values = suggestions;
                 result.count = suggestions.size();
 
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
+            } catch (IOException|JSONException e) {
+                Log.e(TAG, e.getMessage());
             }
+
             return result;
         }
 

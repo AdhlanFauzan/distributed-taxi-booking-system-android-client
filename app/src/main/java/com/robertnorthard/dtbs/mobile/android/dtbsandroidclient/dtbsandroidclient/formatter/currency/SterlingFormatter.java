@@ -16,7 +16,7 @@ public class SterlingFormatter implements CurrencyFormatter {
     /**
      * Inspired from https://docs.oracle.com/javase/tutorial/i18n/format/numberFormat.html
      * @param currency to convert
-     * @return curency formatted as a string.
+     * @return currency formatted as a string.
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
