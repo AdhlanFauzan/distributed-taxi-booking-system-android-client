@@ -78,7 +78,6 @@ public class BookingViewFragment extends Fragment {
         this.bookingTime.setText(this.activeBooking.getTimestamp().toString());
         this.bookingCost.setText(this.currencyFormatter.format(this.activeBooking.getCost()));
 
-
         this.cancelTaxi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
