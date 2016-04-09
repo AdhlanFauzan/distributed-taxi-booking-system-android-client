@@ -7,10 +7,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formatter.currency.CurrencyFormatter;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formatter.currency.SterlingFormatter;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.utils.datamapper.DataMapper;
@@ -24,13 +27,15 @@ public class BookingCompleteStateFragment extends Fragment implements BookingSta
 
     private TextView txtBookingCost;
     private Button btnConfirmBookingCompletition;
-
     private Booking activeBooking;
-
     private Fragment nextFragment;
+    private TextView tvDestinationLocation;
+
+    private CurrencyFormatter currencyFormatter;
 
     public BookingCompleteStateFragment() {
         // Required empty public constructor
+        this.currencyFormatter = new SterlingFormatter();
     }
 
     @Override
@@ -53,7 +58,7 @@ public class BookingCompleteStateFragment extends Fragment implements BookingSta
             this.activeBooking = DataMapper.getInstance().readObject(getArguments().get("data").toString(), Booking.class);
         }
 
-        this.txtBookingCost.setText("£" + String.valueOf(this.activeBooking.getCost()));
+        this.txtBookingCost.setText(currencyFormatter.format(this.activeBooking.getCost()));
 
         this.btnConfirmBookingCompletition.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,6 +108,9 @@ public class BookingCompleteStateFragment extends Fragment implements BookingSta
 
         try{
             View view  = getActivity().findViewById(R.id.content_map_state_frame);
+
+            this.tvDestinationLocation = (TextView)getActivity().findViewById(R.id.tv_pickup_location);
+            this.tvDestinationLocation.setText("PICKUP LOCATION");
 
             if(view != null) {
                 getFragmentManager()

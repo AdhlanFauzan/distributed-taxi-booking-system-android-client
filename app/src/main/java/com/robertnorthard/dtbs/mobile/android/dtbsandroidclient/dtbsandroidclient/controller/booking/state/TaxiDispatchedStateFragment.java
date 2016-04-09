@@ -31,6 +31,7 @@ public class TaxiDispatchedStateFragment extends Fragment implements BookingStat
 
     private Booking activeBooking;
 
+    private AllBookings allBookings = AllBookings.getInstance();
     private Fragment nextFragment;
 
     public TaxiDispatchedStateFragment() {
@@ -57,7 +58,8 @@ public class TaxiDispatchedStateFragment extends Fragment implements BookingStat
             this.activeBooking = DataMapper.getInstance().readObject(getArguments().get("data").toString(), Booking.class);
         }
 
-        AllBookings.getInstance().setActiveBooking(this.activeBooking);
+        allBookings.getActive().setState(this.activeBooking.getState());
+        allBookings.getInstance().getActive().setTaxi(this.activeBooking.getTaxi());
 
         this.txtDriverName.setText(this.activeBooking.getTaxi().getAccount().getCommonName());
         this.txtDriverRegistration.setText(this.activeBooking.getTaxi().getVehicle().getNumberplate());

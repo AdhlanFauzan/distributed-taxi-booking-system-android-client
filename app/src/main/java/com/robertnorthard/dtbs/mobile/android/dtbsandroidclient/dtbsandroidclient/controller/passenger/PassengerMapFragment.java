@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.content.LocalBroadcastManager;
@@ -23,20 +24,29 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllTaxis;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.RequestRideStateFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.HourMinutesSecondsFormatter;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.TimeFormatter;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Location;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Taxi;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.TaxiStates;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.GeocodeService;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.gps.GpsLocationListener;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.tasks.CheckActiveBookingAsyncTask;
 
+import org.json.JSONException;
+
+import java.io.IOException;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Controller for managing a passengers interaction with the map.
@@ -55,15 +65,15 @@ public class PassengerMapFragment extends Fragment implements Observer {
     private static final int CAMERA_ZOOM_LEVEL = 14;
     private static final int CAMERA_ANIMATE_DURATION = 2000;
 
-    private AllTaxis allTaxis;
-
     private MapView mapView;
     private GoogleMap map;
     private EditText pickupLocation;
     private TextView waitTime;
-    private Button btnBookTaxi;
     private TimeFormatter timeFormatter;
 
+    // cache data sources
+    private AllBookings allBookings;
+    private AllTaxis allTaxis;
 
     /**
      * Constructor for class passenger map fragment.
@@ -85,12 +95,14 @@ public class PassengerMapFragment extends Fragment implements Observer {
         StrictMode.setThreadPolicy(policy);
 
         this.allTaxis = AllTaxis.getInstance();
+        this.allBookings = AllBookings.getInstance();
 
-        // start GPS service
         Intent gpsService = new Intent(getActivity(), GpsLocationListener.class);
         getActivity().startService(gpsService);
 
-        // Subscribe to event broadcasters
+        /*
+         Subscribe to event broadcasters
+        */
         this.allTaxis.addObserver(this);
 
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mLocationReceiver,
@@ -121,7 +133,13 @@ public class PassengerMapFragment extends Fragment implements Observer {
         MapsInitializer.initialize(this.getActivity());
         map = this.initialiseMap(mapView);
 
-        new CheckActiveBookingAsyncTask(this).execute();
+        try {
+            AllBookings.getInstance().setActiveBooking(new CheckActiveBookingAsyncTask(this).execute().get());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
 
         return v;
     }
@@ -200,6 +218,7 @@ public class PassengerMapFragment extends Fragment implements Observer {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
                 redrawGoogleMap();
 
                 /*
@@ -208,6 +227,7 @@ public class PassengerMapFragment extends Fragment implements Observer {
                 */
                 try {
                     updateWaitTime(allTaxis.getAverageWaitTimeInSeconds());
+
                 } catch (IllegalStateException ex) {
                     Log.i(TAG, ex.getMessage());
                 }
@@ -235,6 +255,24 @@ public class PassengerMapFragment extends Fragment implements Observer {
                 this.updateMap(t);
             }
         }
+
+        if(bookings.getActive() != null){
+            LatLng location = new LatLng(
+                    bookings.getActive().getRoute().getEndAddress().getLocation().getLatitude(),
+                    bookings.getActive().getRoute().getEndAddress().getLocation().getLongitude());
+
+            MarkerOptions options = new MarkerOptions();
+            options.position(location);
+            options.title("Destination");
+            map.addMarker(options);
+
+            List<LatLng> path = allBookings.getActive().getRoute().getLatLngPath();
+            PolylineOptions routePolyLine = new PolylineOptions();
+            routePolyLine.addAll(path);
+            routePolyLine.width(4);
+            routePolyLine.color(Color.RED);
+            map.addPolyline(routePolyLine);
+        }
     }
 
     /**
@@ -246,7 +284,6 @@ public class PassengerMapFragment extends Fragment implements Observer {
         options.position(location);
         options.title("Numberplate: " + t.getVehicle().getNumberplate());
         options.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_taxi_icon));
-
         map.addMarker(options);
     }
 
@@ -269,7 +306,9 @@ public class PassengerMapFragment extends Fragment implements Observer {
     private void updateAddress(String address){
         if(address == null){
             pickupLocation.setText("Address not found.");
-        }else{
+        }else if(AllBookings.getInstance().getActive() == null ||
+                (AllBookings.getInstance().getActive() != null
+                && !AllBookings.getInstance().getActive().isPassengerPickedUp())){
             pickupLocation.setText(address);
         }
     }
@@ -307,6 +346,8 @@ public class PassengerMapFragment extends Fragment implements Observer {
             // move camera to user's new location
             moveCamera(intent.getDoubleExtra("latitude", 0),
                     intent.getDoubleExtra("longitude", 0));
+
+            redrawGoogleMap();
         }
     };
 }

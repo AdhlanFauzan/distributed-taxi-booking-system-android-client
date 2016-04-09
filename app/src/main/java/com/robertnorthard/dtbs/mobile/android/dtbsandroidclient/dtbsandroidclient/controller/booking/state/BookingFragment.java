@@ -144,16 +144,10 @@ public class BookingFragment extends Fragment implements BookingState {
                             this.dialog.dismiss();
                         }
 
-                        if ((exception != null)) {
+                        if ((exception != null || result == null)) {
                             alertDialog.setMessage(exception.getMessage());
                             alertDialog.show();
-                            try {
-                                AllBookings.getInstance().setActiveBooking(this.get());
-                            } catch (InterruptedException e) {
-                                Log.e("BookingFragment", e.getMessage());
-                            } catch (ExecutionException e) {
-                                Log.e("BookingFragment", e.getMessage());
-                            }
+                            AllBookings.getInstance().setActiveBooking(result);
                         } else {
                             awaitTaxi(result);
                         }

@@ -55,9 +55,7 @@ public class AwaitingTaxiStateFragment extends Fragment implements BookingState 
         View v = inflater.inflate(R.layout.fragment_awaiting_taxi_state, container, false);
 
         this.btnCancelBooking = (Button)v.findViewById(R.id.btn_cancel_booking);
-        this.activeBooking = AllBookings.getInstance().findItem(getArguments().getLong(DtbsPreferences.ACTIVE_BOOKING));
-
-        AllBookings.getInstance().setActiveBooking(this.activeBooking);
+        this.activeBooking = AllBookings.getInstance().getActive();
 
         // btnCancelBooking login button event handler
         this.btnCancelBooking.setOnClickListener(new View.OnClickListener() {

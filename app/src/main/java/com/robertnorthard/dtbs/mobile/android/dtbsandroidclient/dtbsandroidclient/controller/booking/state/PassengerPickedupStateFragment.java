@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
@@ -28,6 +29,8 @@ public class PassengerPickedupStateFragment extends Fragment implements BookingS
 
     private TextView txtDriverRegistration;
     private TextView txtDriverName;
+    private EditText txtDestinationLocation;
+    private TextView tvDestinationLocation;
 
     private Booking activeBooking;
 
@@ -50,6 +53,8 @@ public class PassengerPickedupStateFragment extends Fragment implements BookingS
 
         this.txtDriverName = (TextView)v.findViewById(R.id.txt_driver_name);
         this.txtDriverRegistration = (TextView)v.findViewById(R.id.txt_registration);
+        this.txtDestinationLocation = (EditText)getActivity().findViewById(R.id.txt_pickup_location);
+        this.tvDestinationLocation = (TextView)getActivity().findViewById(R.id.tv_pickup_location);
 
         if(getArguments().get("data") == null){
             this.activeBooking = AllBookings.getInstance().findItem(getArguments().getLong(DtbsPreferences.ACTIVE_BOOKING));
@@ -57,7 +62,12 @@ public class PassengerPickedupStateFragment extends Fragment implements BookingS
             this.activeBooking = DataMapper.getInstance().readObject(getArguments().get("data").toString(), Booking.class);
         }
 
-        AllBookings.getInstance().setActiveBooking(this.activeBooking);
+        AllBookings.getInstance().getActive().setState(this.activeBooking.getState());
+
+        this.tvDestinationLocation = (TextView)getActivity().findViewById(R.id.tv_pickup_location);
+        this.tvDestinationLocation.setText("DESTINATION LOCATION");
+        this.txtDestinationLocation = (EditText)getActivity().findViewById(R.id.txt_pickup_location);
+        this.txtDestinationLocation.setText(this.activeBooking.getRoute().getEndAddress().getAddress());
 
         this.txtDriverName.setText(this.activeBooking.getTaxi().getAccount().getCommonName());
         this.txtDriverRegistration.setText(this.activeBooking.getTaxi().getVehicle().getNumberplate());

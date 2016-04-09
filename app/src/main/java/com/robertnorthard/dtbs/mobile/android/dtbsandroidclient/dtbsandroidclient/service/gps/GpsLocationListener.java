@@ -37,7 +37,6 @@ public class GpsLocationListener extends Service implements android.location.Loc
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10;
     private static final long MIN_TIME_BW_UPDATES = 10;
 
-    // Declaring a Location Manager
     protected LocationManager locationManager;
 
     public GpsLocationListener(){
@@ -50,33 +49,6 @@ public class GpsLocationListener extends Service implements android.location.Loc
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-
-    /**
-     * Return user's current location.
-     *
-     * @return user's current location.
-     */
-    public Location getCurrentLocation(){
-        return this.location;
-    }
-
-    /**
-     * Return the user's current location.
-     *
-     * @return user's current location.
-     */
-    public String getAddress(){
-        return this.address;
-    }
-
-
-    public double getLatitude(){
-        return this.location.getLatitude();
-    }
-
-    public double getLongitude(){
-        return this.location.getLongitude();
     }
 
     @Override

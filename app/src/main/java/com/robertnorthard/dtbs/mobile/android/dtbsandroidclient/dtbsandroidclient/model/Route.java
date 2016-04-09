@@ -1,6 +1,9 @@
 package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,7 +15,7 @@ public class Route implements Serializable {
     private Address endAddress;
     private double distance;
     private double estimateTravelTime;
-    private List<Location> path;
+    private List<Location> path = new ArrayList<>();
 
     public Route(){}
 
@@ -63,5 +66,21 @@ public class Route implements Serializable {
 
     public void setPath(List<Location> path) {
         this.path = path;
+    }
+
+    public List<LatLng> getLatLngPath(){
+        List<LatLng> path = new ArrayList<>();
+
+        for(Location l : this.path){
+            path.add(new LatLng(l.getLatitude(), l.getLongitude()));
+        }
+
+        return path;
+    }
+
+    public void setLatLngPath(List<LatLng> path){
+        for(LatLng latLng : path){
+            this.path.add(new Location(latLng.latitude, latLng.longitude));
+        }
     }
 }
