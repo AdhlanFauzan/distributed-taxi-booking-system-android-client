@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -28,21 +27,13 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllTaxis;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.RequestRideStateFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.HourMinutesSecondsFormatter;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.TimeFormatter;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Location;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Taxi;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.TaxiStates;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.GeocodeService;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.gps.GpsLocationListener;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.tasks.CheckActiveBookingAsyncTask;
 
-import org.json.JSONException;
-
-import java.io.IOException;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;

@@ -26,7 +26,6 @@ import java.io.IOException;
  * @author robertnorthard
  */
 public class ForgottenPasswordActivity extends AppCompatActivity {
-
     private EditText txtAccessCode;
     private EditText txtNewPassword;
     private EditText txtNewPassword2;

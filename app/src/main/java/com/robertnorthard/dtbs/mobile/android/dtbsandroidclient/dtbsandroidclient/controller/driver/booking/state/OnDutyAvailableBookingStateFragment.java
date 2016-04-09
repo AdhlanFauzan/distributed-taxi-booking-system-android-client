@@ -1,20 +1,17 @@
 package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.driver.booking.state;
 
-import android.app.Activity;
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.BookingCompleteStateFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 
 /**
