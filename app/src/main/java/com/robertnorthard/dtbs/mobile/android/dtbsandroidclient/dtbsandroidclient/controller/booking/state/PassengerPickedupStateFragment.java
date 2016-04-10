@@ -31,6 +31,7 @@ public class PassengerPickedupStateFragment extends Fragment implements BookingS
     private TextView txtDriverName;
     private EditText txtDestinationLocation;
     private TextView tvDestinationLocation;
+    private TextView tvEstimateArrivalTime;
 
     private Booking activeBooking;
 
@@ -65,9 +66,12 @@ public class PassengerPickedupStateFragment extends Fragment implements BookingS
         AllBookings.getInstance().getActive().setState(this.activeBooking.getState());
 
         this.tvDestinationLocation = (TextView)getActivity().findViewById(R.id.tv_pickup_location);
-        this.tvDestinationLocation.setText("DESTINATION LOCATION");
+        this.tvDestinationLocation.setText(getString(R.string.msg_destination_address));
         this.txtDestinationLocation = (EditText)getActivity().findViewById(R.id.txt_pickup_location);
         this.txtDestinationLocation.setText(this.activeBooking.getRoute().getEndAddress().getAddress());
+
+        this.tvEstimateArrivalTime = (TextView)getActivity().findViewById(R.id.tv_wait_time);
+        this.tvEstimateArrivalTime.setText(getString(R.string.msg_estimated_arrival_time));
 
         this.txtDriverName.setText(this.activeBooking.getTaxi().getAccount().getCommonName());
         this.txtDriverRegistration.setText(this.activeBooking.getTaxi().getVehicle().getNumberplate());

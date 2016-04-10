@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <permission
         android:name="com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.permission.C2D_MESSAGE"
@@ -86,6 +88,12 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
 
                 <category android:name="com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".dtbsandroidclient.service.network.NetworkMonitor" >
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
 

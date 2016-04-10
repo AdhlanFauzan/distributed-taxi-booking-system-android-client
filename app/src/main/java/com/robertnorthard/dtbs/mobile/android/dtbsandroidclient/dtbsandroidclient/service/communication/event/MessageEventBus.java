@@ -65,7 +65,7 @@ public class MessageEventBus extends Observable{
         this.webSocketClient = new WebSocketClient(uri, new Draft_17()) {
             @Override
             public void onOpen(ServerHandshake serverHandshake) {
-                Log.i(TAG, "Socket Opened");
+                Log.i("WebSocket", "Socket Opened");
             }
 
             @Override
@@ -91,7 +91,11 @@ public class MessageEventBus extends Observable{
     }
 
     public void sendData(Object object){
-        this.webSocketClient.send(DataMapper.getInstance().getObjectAsJson(object));
+        try {
+            this.webSocketClient.send(DataMapper.getInstance().getObjectAsJson(object));
+        }catch(Exception ex){
+            Log.d("WebSocket", "Error sending message.");
+        }
     }
 
     /**
@@ -100,12 +104,8 @@ public class MessageEventBus extends Observable{
      * @return true if communication channel closed, else false.
      */
     public synchronized boolean close(){
-        if(!(MessageEventBus.messageEventBus == null)){
+        if(MessageEventBus.messageEventBus != null){
             this.webSocketClient.close();
-
-            // clear down resources
-            this.webSocketClient = null;
-            MessageEventBus.messageEventBus = null;
             return true;
         }
         return false;

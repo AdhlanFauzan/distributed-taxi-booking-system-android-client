@@ -21,6 +21,8 @@ public class AllTaxis extends Observable implements Cache<Long,Taxi> {
     private Map<Long, Taxi> taxis;
     private TaxiService taxiService;
 
+    private int estimatedArrivalTime = 0;
+
     /**
      * Default constructor for class taxi.
      */
@@ -73,6 +75,23 @@ public class AllTaxis extends Observable implements Cache<Long,Taxi> {
 
         return movingAverage / this.taxis.size();
     }
+
+    /**
+     * Get estimated arrival time for a taxi.
+     * @return
+     */
+    public int getEstimatedEta(){
+        return this.estimatedArrivalTime;
+    }
+
+    /**
+     * Set taxi estimated arrival time to destination.
+     * @param estimatedArrivalTime
+     */
+    public void setEstimatedEta(int estimatedArrivalTime) {
+        this.estimatedArrivalTime = estimatedArrivalTime;
+    }
+
 
     @Override
     public synchronized void addItem(Taxi item) {

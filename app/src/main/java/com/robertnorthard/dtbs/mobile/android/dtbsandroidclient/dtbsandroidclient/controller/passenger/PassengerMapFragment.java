@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,8 +34,10 @@ import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclien
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.HourMinutesSecondsFormatter;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.TimeFormatter;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Taxi;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.communication.event.MessageEventBus;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.gps.GpsLocationListener;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.network.NetworkMonitor;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.tasks.CheckActiveBookingAsyncTask;
 
 import java.util.List;
@@ -129,6 +133,9 @@ public class PassengerMapFragment extends Fragment implements Observer {
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRedrawMapMessageReceiver,
                 new IntentFilter(DtbsPreferences.MAP_REDRAW_EVENTS_TOPIC));
 
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mNetworkMonitorReceiver,
+                new IntentFilter(DtbsPreferences.NETWORK_STATE_EVENT));
+
         try {
             AllBookings.getInstance().setActiveBooking(new CheckActiveBookingAsyncTask(this).execute().get());
         } catch (InterruptedException|ExecutionException e) {
@@ -220,7 +227,13 @@ public class PassengerMapFragment extends Fragment implements Observer {
                 Throws illegal state exception if no taxis available, to prevent divide by 0 exception.
                 */
                 try {
-                    updateWaitTime(allTaxis.getAverageWaitTimeInSeconds());
+
+                    if(AllBookings.getInstance().activeBooking()
+                            && AllBookings.getInstance().getActive().isPassengerPickedUp()){
+                        updateWaitTime(allTaxis.getEstimatedEta());
+                    }else{
+                        updateWaitTime(allTaxis.getAverageWaitTimeInSeconds());
+                    }
 
                 } catch (IllegalStateException ex) {
                     Log.i(TAG, ex.getMessage());
@@ -352,4 +365,15 @@ public class PassengerMapFragment extends Fragment implements Observer {
         }
     };
 
+    NetworkMonitor mNetworkMonitorReceiver = new NetworkMonitor() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(isConnected(context)){
+                MessageEventBus.getInstance().open();
+            }else{
+                MessageEventBus.getInstance().close();
+            }
+        }
+    };
 }

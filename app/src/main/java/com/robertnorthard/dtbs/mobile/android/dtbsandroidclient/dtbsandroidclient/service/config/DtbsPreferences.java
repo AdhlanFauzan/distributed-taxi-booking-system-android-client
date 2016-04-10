@@ -20,4 +20,6 @@ public class DtbsPreferences {
     public static final String ACTIVE_BOOKING = "activeBooking";
 
     public static final String BOOKING_ID = "bookingId";
+
+    public static final String NETWORK_STATE_EVENT = "networkStateEvent";
 }

@@ -2,7 +2,7 @@
 
     <string name = "app_name">Find a Ride</string>
     <string name = "title_activity_main">FIND A RIDE</string>
-    <string name="title_activity_register">REGISTER</string>
+    <string name = "title_activity_register">REGISTER</string>
     <string name = "title_activity_forgotten_password">RESET PASSWORD</string>
     <string name = "title_about">ABOUT</string>
 
@@ -59,8 +59,6 @@
         <item>4</item>
     </string-array>
 
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
@@ -122,5 +120,8 @@
     <string name="txt_awaiting_taxi">AWAITING TAXI ALLOCATION \n Cancel Booking</string>
     <string name="txt_taxi_dispatched">Cancel Booking</string>
     <string name="msg_booking_view_cancel_taxi">CANCEL TAXI</string>
+
+    <string name="msg_estimated_arrival_time">ETA</string>
+    <string name="msg_destination_address">DESTINATION ADDRESS</string>
 
 </resources>

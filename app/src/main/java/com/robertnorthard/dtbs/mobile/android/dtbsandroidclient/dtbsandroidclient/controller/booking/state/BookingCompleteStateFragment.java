@@ -31,6 +31,7 @@ public class BookingCompleteStateFragment extends Fragment implements BookingSta
     private Booking activeBooking;
     private Fragment nextFragment;
     private TextView tvDestinationLocation;
+    private TextView tvETA;
 
     private CurrencyFormatter currencyFormatter;
 
@@ -115,7 +116,9 @@ public class BookingCompleteStateFragment extends Fragment implements BookingSta
             View view  = getActivity().findViewById(R.id.content_map_state_frame);
 
             this.tvDestinationLocation = (TextView)getActivity().findViewById(R.id.tv_pickup_location);
-            this.tvDestinationLocation.setText("PICKUP LOCATION");
+            this.tvDestinationLocation.setText(getString(R.string.pickup_location));
+            this.tvETA = (TextView)getActivity().findViewById(R.id.tv_wait_time);
+            this.tvETA.setText(getString(R.string.average_wait_time_hint));
 
             if(view != null) {
                 getFragmentManager()

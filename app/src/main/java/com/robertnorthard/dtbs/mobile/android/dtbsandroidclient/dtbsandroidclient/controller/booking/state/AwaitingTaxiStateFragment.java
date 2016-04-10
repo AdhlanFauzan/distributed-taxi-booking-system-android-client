@@ -151,6 +151,10 @@ public class AwaitingTaxiStateFragment extends Fragment implements BookingState 
         try{
             View view  = getActivity().findViewById(R.id.content_map_state_frame);
 
+            // notify map fragment that it should be redrawn.
+            Intent intent = new Intent(DtbsPreferences.MAP_REDRAW_EVENTS_TOPIC);
+            LocalBroadcastManager.getInstance(AwaitingTaxiStateFragment.this.getActivity().getBaseContext()).sendBroadcast(intent);
+
             if(view != null) {
                 getFragmentManager().beginTransaction()
                         .replace(R.id.content_map_state_frame, nextFragment)
