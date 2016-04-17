@@ -153,20 +153,15 @@ public class BookingService {
     public Booking bookRide(BookingDto booking) throws IOException,JSONException {
 
         try{
-
             JSONObject params = new JSONObject(this.dataMapper.getObjectAsJson(booking));
-
             JSONObject response = this.restClient.sendData(
                     ConfigService.getProperty("dtbs.endpoint.booking"), HttpMethod.POST, params);
 
             JSONObject data = null;
 
             if(response.getString("status").equals("0")){
-
                 data = response.getJSONObject("data");
-
                 return this.dataMapper.readObject(data.toString(), Booking.class);
-
             }else{
                 throw new IllegalArgumentException(response.getString("data"));
             }

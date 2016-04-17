@@ -33,6 +33,8 @@ import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclien
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.TaxiDispatchedStateFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.HourMinutesSecondsFormatter;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.TimeFormatter;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Location;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Taxi;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.communication.event.MessageEventBus;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
@@ -263,9 +265,12 @@ public class PassengerMapFragment extends Fragment implements Observer {
         }
 
         if(bookings.getActive() != null){
+
+            Location destinationLocation = bookings.getActive().getRoute().getEndAddress().getLocation();
+
             LatLng location = new LatLng(
-                    bookings.getActive().getRoute().getEndAddress().getLocation().getLatitude(),
-                    bookings.getActive().getRoute().getEndAddress().getLocation().getLongitude());
+                    destinationLocation.getLatitude(),
+                    destinationLocation.getLongitude());
 
             MarkerOptions options = new MarkerOptions();
             options.position(location);
