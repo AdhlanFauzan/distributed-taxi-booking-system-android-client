@@ -18,9 +18,7 @@ public class Booking implements Serializable {
     private Route route;
     private String state;
 
-    public Booking(){
-
-    }
+    public Booking(){}
 
     public Booking(Account passenger, Route route, int numberPassengers){
         this.passenger = passenger;
@@ -106,5 +104,13 @@ public class Booking implements Serializable {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public boolean awaitingTaxiDispatch(){
+        return this.taxi == null;
+    }
+
+    public boolean isPassengerPickedUp(){
+        return this.state.equals("PASSENGER_PICKED_UP");
     }
 }

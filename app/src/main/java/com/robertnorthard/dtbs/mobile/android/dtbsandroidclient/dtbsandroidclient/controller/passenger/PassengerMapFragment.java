@@ -5,16 +5,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -23,18 +25,27 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllTaxis;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.RequestRideStateFragment;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.AwaitingTaxiStateFragment;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.TaxiDispatchedStateFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.HourMinutesSecondsFormatter;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formater.time.TimeFormatter;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Location;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Taxi;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.communication.event.MessageEventBus;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.gps.GpsLocationListener;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.network.NetworkMonitor;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.tasks.CheckActiveBookingAsyncTask;
 
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Controller for managing a passengers interaction with the map.
@@ -53,15 +64,15 @@ public class PassengerMapFragment extends Fragment implements Observer {
     private static final int CAMERA_ZOOM_LEVEL = 14;
     private static final int CAMERA_ANIMATE_DURATION = 2000;
 
-    private AllTaxis allTaxis;
-
     private MapView mapView;
     private GoogleMap map;
     private EditText pickupLocation;
     private TextView waitTime;
-    private Button btnBookTaxi;
     private TimeFormatter timeFormatter;
 
+    // cache data sources
+    private AllBookings allBookings;
+    private AllTaxis allTaxis;
 
     /**
      * Constructor for class passenger map fragment.
@@ -83,12 +94,14 @@ public class PassengerMapFragment extends Fragment implements Observer {
         StrictMode.setThreadPolicy(policy);
 
         this.allTaxis = AllTaxis.getInstance();
+        this.allBookings = AllBookings.getInstance();
 
-        // start GPS service
         Intent gpsService = new Intent(getActivity(), GpsLocationListener.class);
         getActivity().startService(gpsService);
 
-        // Subscribe to event broadcasters
+        /*
+         Subscribe to event broadcasters
+        */
         this.allTaxis.addObserver(this);
 
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mLocationReceiver,
@@ -119,7 +132,17 @@ public class PassengerMapFragment extends Fragment implements Observer {
         MapsInitializer.initialize(this.getActivity());
         map = this.initialiseMap(mapView);
 
-        new CheckActiveBookingAsyncTask(this).execute();
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRedrawMapMessageReceiver,
+                new IntentFilter(DtbsPreferences.MAP_REDRAW_EVENTS_TOPIC));
+
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mNetworkMonitorReceiver,
+                new IntentFilter(DtbsPreferences.NETWORK_STATE_EVENT));
+
+        try {
+            AllBookings.getInstance().setActiveBooking(new CheckActiveBookingAsyncTask(this).execute().get());
+        } catch (InterruptedException|ExecutionException e) {
+           Log.e(TAG, e.getMessage());
+        }
 
         return v;
     }
@@ -206,7 +229,14 @@ public class PassengerMapFragment extends Fragment implements Observer {
                 Throws illegal state exception if no taxis available, to prevent divide by 0 exception.
                 */
                 try {
-                    updateWaitTime(allTaxis.getAverageWaitTimeInSeconds());
+
+                    if(AllBookings.getInstance().activeBooking()
+                            && AllBookings.getInstance().getActive().isPassengerPickedUp()){
+                        updateWaitTime(allTaxis.getEstimatedEta());
+                    }else{
+                        updateWaitTime(allTaxis.getAverageWaitTimeInSeconds());
+                    }
+
                 } catch (IllegalStateException ex) {
                     Log.i(TAG, ex.getMessage());
                 }
@@ -222,15 +252,58 @@ public class PassengerMapFragment extends Fragment implements Observer {
 
         map.clear();
 
+        AllBookings bookings = AllBookings.getInstance();
+
         for (Taxi t : allTaxis.findAll()) {
-            LatLng location = new LatLng(t.getLocation().getLatitude(), t.getLocation().getLongitude());
+
+            if(bookings.activeBooking() && bookings.taxiIsActive(t.getId())
+                    || (bookings.activeBooking() && bookings.getActive().awaitingTaxiDispatch())){
+                this.updateMap(t);
+            }else if(!bookings.activeBooking() && t.onDuty()){
+                this.updateMap(t);
+            }
+        }
+
+        if(bookings.getActive() != null){
+
+            Location destinationLocation =
+                    bookings
+                            .getActive()
+                            .getRoute()
+                            .getEndAddress()
+                            .getLocation();
+
+            LatLng location = new LatLng(
+                    destinationLocation.getLatitude(),
+                    destinationLocation.getLongitude());
+
             MarkerOptions options = new MarkerOptions();
             options.position(location);
-            options.title("Numberplate: " + t.getVehicle().getNumberplate());
-            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_taxi_icon));
-
+            options.title("Destination");
             map.addMarker(options);
+
+            List<LatLng> path = allBookings.getActive().getRoute().getLatLngPath();
+            PolylineOptions routePolyLine = new PolylineOptions();
+            routePolyLine.addAll(path);
+            routePolyLine.width(6);
+            routePolyLine.color(Color.RED);
+            map.addPolyline(routePolyLine);
         }
+    }
+
+    /**
+     * Update map with taxi.
+     */
+    private void updateMap(Taxi t){
+        LatLng location = new LatLng(
+                t.getLocation().getLatitude(),
+                t.getLocation().getLongitude());
+
+        MarkerOptions options = new MarkerOptions();
+        options.position(location);
+        options.title("Numberplate: " + t.getVehicle().getNumberplate());
+        options.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_taxi_icon));
+        map.addMarker(options);
     }
 
     /**
@@ -252,7 +325,9 @@ public class PassengerMapFragment extends Fragment implements Observer {
     private void updateAddress(String address){
         if(address == null){
             pickupLocation.setText("Address not found.");
-        }else{
+        }else if(AllBookings.getInstance().getActive() == null ||
+                (AllBookings.getInstance().getActive() != null
+                && !AllBookings.getInstance().getActive().isPassengerPickedUp())){
             pickupLocation.setText(address);
         }
     }
@@ -290,6 +365,28 @@ public class PassengerMapFragment extends Fragment implements Observer {
             // move camera to user's new location
             moveCamera(intent.getDoubleExtra("latitude", 0),
                     intent.getDoubleExtra("longitude", 0));
+
+            redrawGoogleMap();
+        }
+    };
+
+
+    private BroadcastReceiver mRedrawMapMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            redrawGoogleMap();
+        }
+    };
+
+    NetworkMonitor mNetworkMonitorReceiver = new NetworkMonitor() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(isConnected(context)){
+                MessageEventBus.getInstance().open();
+            }else{
+                MessageEventBus.getInstance().close();
+            }
         }
     };
 }

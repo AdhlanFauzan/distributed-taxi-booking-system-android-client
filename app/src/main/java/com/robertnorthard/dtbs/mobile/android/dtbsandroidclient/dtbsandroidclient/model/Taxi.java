@@ -67,4 +67,8 @@ public class Taxi implements Serializable {
     public void setState(String state) {
         this.state = state;
     }
+
+    public boolean onDuty(){
+        return this.getState().equals(TaxiStates.ON_DUTY.toString());
+    }
 }

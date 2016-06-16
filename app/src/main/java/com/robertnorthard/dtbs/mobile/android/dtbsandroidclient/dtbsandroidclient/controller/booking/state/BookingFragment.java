@@ -6,16 +6,19 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
@@ -29,6 +32,7 @@ import com.robertnorthard.dtbs.server.common.dto.LocationDto;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * A controller class to handler all related activities
@@ -36,8 +40,9 @@ import java.io.IOException;
  */
 public class BookingFragment extends Fragment implements BookingState {
 
-    private EditText txtPickupLocation;
-    private EditText txtDestinationLocation;
+
+    private AutoCompleteTextView txtPickupLocation;
+    private AutoCompleteTextView txtDestinationLocation;
     private Spinner spinnerPassengerCount;
     private Button btnBookRide;
 
@@ -53,12 +58,15 @@ public class BookingFragment extends Fragment implements BookingState {
 
         String pickupLocation = getArguments().getString(DtbsPreferences.DATA_PICKUP_LOCATION);
 
-        this.txtPickupLocation = (EditText)v.findViewById(R.id.txt_pickup_location);
-        this.txtDestinationLocation = (EditText)v.findViewById(R.id.txt_destination_location);
+        this.txtPickupLocation = (AutoCompleteTextView)v.findViewById(R.id.txt_pickup_location);
+        this.txtDestinationLocation = (AutoCompleteTextView)v.findViewById(R.id.txt_destination_location);
         this.spinnerPassengerCount = (Spinner) v.findViewById(R.id.spinner_number_passengers);
         this.btnBookRide = (Button)v.findViewById(R.id.btn_request_ride);
 
+        this.txtDestinationLocation.setAdapter(new AutoCompleteBookingAdapter(getActivity(),R.layout.auto_complete_address_layout));
+
         this.txtPickupLocation.setText(pickupLocation);
+        this.txtPickupLocation.setAdapter(new AutoCompleteBookingAdapter(getActivity(),R.layout.auto_complete_address_layout));
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.spinner_number_passengers, android.R.layout.simple_spinner_dropdown_item);
@@ -87,7 +95,9 @@ public class BookingFragment extends Fragment implements BookingState {
                         this.dialog.show();
                     }
 
-
+                    /**
+                     * Make a booking and if valid, calculate the route to display.
+                     */
                     @Override
                     protected Booking doInBackground(String... params) {
 
@@ -108,7 +118,23 @@ public class BookingFragment extends Fragment implements BookingState {
 
                             booking.setNumberPassengers(numberPassengers);
 
-                            return this.bookingService.bookRide(booking);
+                            Booking newBooking = this.bookingService.bookRide(booking);
+
+                            if(booking != null){
+                                AllBookings.getInstance().setActiveBooking(newBooking);
+
+                                LatLng currentLocation = new LatLng(
+                                        startLocation.getLatitude(),
+                                        startLocation.getLongitude());
+
+                                LatLng destinationLocation = new LatLng(endLocation.getLatitude(), endLocation.getLongitude());
+
+                                List<LatLng> route = this.geocodeService.getRoute(currentLocation,destinationLocation);
+
+                                newBooking.getRoute().setLatLngPath(route);
+                            }
+
+                            return newBooking;
 
                         } catch (IOException | JSONException | IllegalArgumentException e) {
                             exception = e;
@@ -137,7 +163,7 @@ public class BookingFragment extends Fragment implements BookingState {
                             this.dialog.dismiss();
                         }
 
-                        if ((exception != null)) {
+                        if ((exception != null || result == null)) {
                             alertDialog.setMessage(exception.getMessage());
                             alertDialog.show();
                         } else {
@@ -176,6 +202,10 @@ public class BookingFragment extends Fragment implements BookingState {
         ft.replace(R.id.content_map_state_frame, f);
         ft.addToBackStack(null);
         ft.commit();
+
+        // notify map fragment that it should be redrawn.
+        Intent intent = new Intent(DtbsPreferences.MAP_REDRAW_EVENTS_TOPIC);
+        LocalBroadcastManager.getInstance(BookingFragment.this.getActivity().getBaseContext()).sendBroadcast(intent);
     }
 
     @Override
@@ -195,6 +225,11 @@ public class BookingFragment extends Fragment implements BookingState {
 
     @Override
     public void cancelBooking() {
+        throw new IllegalStateException("Taxi not requested.");
+    }
+
+    @Override
+    public void taxiDispatched() {
         throw new IllegalStateException("Taxi not requested.");
     }
 }

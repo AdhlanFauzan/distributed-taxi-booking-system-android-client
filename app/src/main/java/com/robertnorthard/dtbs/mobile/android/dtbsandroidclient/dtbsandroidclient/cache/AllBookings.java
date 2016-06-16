@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AllBookings implements Cache<Long,Booking> {
 
     private Map<Long,Booking> bookings;
+    private Booking active;
 
     private static AllBookings singleton;
 
@@ -58,5 +59,28 @@ public class AllBookings implements Cache<Long,Booking> {
     @Override
     public boolean hasItem(Long id) {
         return this.bookings.containsKey(id);
+    }
+
+    public boolean taxiIsActive(Long id){
+        if(this.active != null) {
+            if (this.active.getTaxi() != null) {
+                if (this.active.getTaxi().getId() == id) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public Booking getActive(){
+        return this.active;
+    }
+
+    public boolean activeBooking(){
+        return this.active != null;
+    }
+
+    public void setActiveBooking(Booking booking){
+        this.active = booking;
     }
 }

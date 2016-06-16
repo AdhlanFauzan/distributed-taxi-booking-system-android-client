@@ -3,16 +3,25 @@ package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclie
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
@@ -21,12 +30,16 @@ import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclien
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.SettingsFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.history.BookingHistoryFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Account;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.network.NetworkMonitor;
 
 public class PassengerMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private TextView txtUsername;
     private TextView txtEmail;
+
+    private Snackbar snackbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +58,17 @@ public class PassengerMainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(PassengerMainActivity.this);
 
         getFragmentManager().beginTransaction().add(R.id.content_frame, new PassengerMapFragment()).commit();
+
+        snackbar = Snackbar
+                .make(findViewById(android.R.id.content), "Connectivity Issues Detected!", Snackbar.LENGTH_INDEFINITE);
+
+        View view = snackbar.getView();
+        FrameLayout.LayoutParams params =(FrameLayout.LayoutParams)view.getLayoutParams();
+        params.topMargin = 50;
+        view.setLayoutParams(params);
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mNetworkMonitorReceiver,
+                new IntentFilter(DtbsPreferences.NETWORK_STATE_EVENT));
     }
 
     /**
@@ -127,4 +151,17 @@ public class PassengerMainActivity extends AppCompatActivity
 
         return true;
     }
+
+    NetworkMonitor mNetworkMonitorReceiver = new NetworkMonitor() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            if(isConnected(context)){
+                snackbar.dismiss();
+            }else{
+                snackbar.show();
+            }
+        }
+    };
 }

@@ -29,6 +29,7 @@
             android:layout_marginRight="20dp"
             android:background="#ffffff"
             android:gravity="center"
+            android:id="@+id/tv_pickup_location"
             android:layout_marginTop="10dp"/>
 
         <EditText
@@ -62,6 +63,7 @@
             android:layout_marginRight="20dp"
             android:background="#ffffff"
             android:gravity="center"
+            android:id="@+id/tv_wait_time"
             android:layout_marginTop="10dp" />
 
         <TextView

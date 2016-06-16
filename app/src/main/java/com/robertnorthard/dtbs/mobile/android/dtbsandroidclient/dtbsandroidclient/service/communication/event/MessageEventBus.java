@@ -28,13 +28,14 @@ public class MessageEventBus extends Observable{
     private WebSocketClient webSocketClient;
 
     private MessageEventBus(){
-        // private as singleton
+        initiateWebSocket();
     }
 
     /**
      * @return a single instance of MessageEventBus. If null create new.
      */
     public static MessageEventBus getInstance(){
+        //String gridReference
         if(MessageEventBus.messageEventBus == null){
             synchronized(MessageEventBus.class){
                 MessageEventBus.messageEventBus = new MessageEventBus();
@@ -54,7 +55,7 @@ public class MessageEventBus extends Observable{
 
         URI uri;
         try {
-            uri = new URI(ConfigService.getProperty("dtbs.endpoint.taxi.location.subscribe"));
+            uri = new URI(ConfigService.getProperty("dtbs.endpoint.taxi.location.subscribe.grid"));
         } catch (URISyntaxException e) {
             Log.d(TAG, e.getMessage());
             return;
@@ -64,7 +65,7 @@ public class MessageEventBus extends Observable{
         this.webSocketClient = new WebSocketClient(uri, new Draft_17()) {
             @Override
             public void onOpen(ServerHandshake serverHandshake) {
-                Log.i(TAG, "Socket Opened");
+                Log.i("WebSocket", "Socket Opened");
             }
 
             @Override
@@ -89,18 +90,22 @@ public class MessageEventBus extends Observable{
         this.webSocketClient.connect();
     }
 
+    public void sendData(Object object){
+        try {
+            this.webSocketClient.send(DataMapper.getInstance().getObjectAsJson(object));
+        }catch(Exception ex){
+            Log.d("WebSocket", "Error sending message.");
+        }
+    }
+
     /**
      * Close communication channel.
      *
      * @return true if communication channel closed, else false.
      */
     public synchronized boolean close(){
-        if(!(MessageEventBus.messageEventBus == null)){
+        if(MessageEventBus.messageEventBus != null){
             this.webSocketClient.close();
-
-            // clear down resources
-            this.webSocketClient = null;
-            MessageEventBus.messageEventBus = null;
             return true;
         }
         return false;

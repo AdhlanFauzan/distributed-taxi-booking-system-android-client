@@ -10,15 +10,6 @@ import android.view.ViewGroup;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
 
 public class AboutFragment extends Fragment {
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     */
-    public static AboutFragment newInstance() {
-        AboutFragment fragment = new AboutFragment();
-        return fragment;
-    }
 
     public AboutFragment() {
         // Required empty public constructor

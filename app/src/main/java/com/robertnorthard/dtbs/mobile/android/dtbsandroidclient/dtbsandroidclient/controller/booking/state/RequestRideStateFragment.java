@@ -2,6 +2,7 @@ package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclie
 
 import android.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,8 @@ import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclien
  * Represents a request ride booking state.
  */
 public class RequestRideStateFragment extends Fragment implements BookingState {
+
+    private static final String TAG = RequestRideStateFragment.class.getName();
 
     private Button btnBookTaxi;
     private EditText txtPickupLocation;
@@ -60,11 +63,19 @@ public class RequestRideStateFragment extends Fragment implements BookingState {
 
     @Override
     public void requestTaxi() {
-        getFragmentManager()
-                .beginTransaction()
-                .add(R.id.content_frame, nextFragment)
-                .addToBackStack(null)
-                .commit();
+        try {
+            View view  = getActivity().findViewById(R.id.content_map_state_frame);
+
+            if(view != null) {
+                getFragmentManager()
+                        .beginTransaction()
+                        .add(R.id.content_frame, nextFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        }catch(Exception ex){
+            Log.e(TAG, ex.getMessage());
+        }
     }
 
     @Override
@@ -80,5 +91,10 @@ public class RequestRideStateFragment extends Fragment implements BookingState {
     @Override
     public void cancelBooking() {
         throw new IllegalStateException("Taxi not requested.");
+    }
+
+    @Override
+    public void taxiDispatched() {
+        throw new IllegalStateException("Ride not requested.");
     }
 }

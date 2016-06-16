@@ -163,5 +163,39 @@ public class AuthenticationService {
             throw e;
         }
     }
+
+
+    /**
+     * Log a user out.
+     *
+     * @param username username to authenticate with.
+     * @param password password in plain text.
+     * @throws IOException network error.
+     * @throws IllegalArgumentException  if rest response code not equal to 0.
+     */
+    public void logout(String username, String password)
+            throws IOException, JSONException {
+
+        JSONObject params = new JSONObject();
+
+        try {
+            // construct request params
+            params.put("username", username);
+            params.put("password", password);
+
+            JSONObject response = this.restClient.sendData(
+                    ConfigService.getProperty("dtbs.endpoint.auth.logoout"), HttpMethod.POST, params);
+
+            JSONObject data = null;
+
+            if(!response.getString("status").equals("0")){
+                throw new IllegalArgumentException(response.getString("data"));
+            }
+
+        } catch (IOException e) {
+            Log.e(TAG,e.toString());
+            throw e;
+        }
+    }
 }
 

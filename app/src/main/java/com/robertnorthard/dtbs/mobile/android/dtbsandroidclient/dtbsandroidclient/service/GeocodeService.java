@@ -13,7 +13,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -77,7 +79,7 @@ public class GeocodeService {
             JSONObject json = RestClient.getInstance().sendData(ConfigService.parseProperty(url, tokens), HttpMethod.GET, null);
 
             if(json.getString("status").equals("0")) {
-                return this.dataMapper.readObject(json.getString("data"),Location.class);
+                return this.dataMapper.readObject(json.getString("data"), Location.class);
             }else{
                 throw new IllegalArgumentException(json.getString("data"));
             }
@@ -115,5 +117,60 @@ public class GeocodeService {
         } catch (IOException|JSONException e) {
             throw e;
         }
+    }
+
+    public String findAddress(String address) throws IOException, JSONException {
+        Map<String,String> tokens = new HashMap<>();
+        tokens.put("address",String.valueOf(address).replaceAll(" ", "%20"));
+
+        String url = ConfigService.getProperty("dtbs.endpoint.geocode.address.lookup.text");
+
+        try {
+
+            JSONObject json = RestClient.getInstance().sendData(ConfigService.parseProperty(url, tokens), HttpMethod.GET, null);
+
+            if(json.getString("status").equals("0")) {
+                return json.getString("data");
+            }else{
+                throw new IllegalArgumentException(json.getString("data"));
+            }
+        } catch (IOException|JSONException e) {
+            throw e;
+        }
+    }
+
+    public List<LatLng> getRoute(LatLng startLocation, LatLng endLocation) throws IOException, JSONException {
+
+        Map<String,String> tokens = new HashMap<>();
+        tokens.put("start_latitude",startLocation.latitude + "");
+        tokens.put("start_longitude",startLocation.longitude + "");
+        tokens.put("end_latitude",endLocation.latitude + "");
+        tokens.put("end_longitude",endLocation.longitude + "");
+
+        String url = ConfigService.getProperty("dtbs.endpoint.geocode.route");
+
+        try {
+
+            JSONObject json = RestClient.getInstance().sendData(ConfigService.parseProperty(url, tokens), HttpMethod.GET, null);
+
+            if(json.getString("status").equals("0")) {
+
+                List<LatLng> path = new ArrayList<>();
+
+                for(int i = 0; i < json.getJSONObject("data").getJSONArray("path").length(); i++){
+
+                    path.add(new LatLng(
+                            Double.parseDouble(json.getJSONObject("data").getJSONArray("path").getJSONObject(i).getString("latitude")),
+                            Double.parseDouble(json.getJSONObject("data").getJSONArray("path").getJSONObject(i).getString("longitude"))));
+                }
+
+                return path;
+            }else{
+                throw new IllegalArgumentException(json.getString("data"));
+            }
+        } catch (IOException|JSONException e) {
+            throw e;
+        }
+
     }
 }

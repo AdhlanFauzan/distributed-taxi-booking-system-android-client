@@ -1,11 +1,11 @@
 package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.tasks;
 
 import android.app.Fragment;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.AwaitingTaxiStateFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.PassengerPickedupStateFragment;
@@ -13,13 +13,15 @@ import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclien
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.state.TaxiDispatchedStateFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.passenger.PassengerMapFragment;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Location;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.BookingService;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.GeocodeService;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
-import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.utils.datamapper.DataMapper;
 
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Async task to check if user has any active bookings.
@@ -54,6 +56,26 @@ public class CheckActiveBookingAsyncTask extends AsyncTask<Void, Void, Booking>{
         try {
             activeBooking = this.bookingService.findActiveBooking();
 
+            if(activeBooking != null){
+
+                // convert location to correct format
+                LatLng currentLocation = new LatLng(
+                        activeBooking.getRoute().getStartAddress().getLocation().getLatitude(),
+                        activeBooking.getRoute().getStartAddress().getLocation().getLongitude());
+
+                Location location = activeBooking.getRoute().getEndAddress().getLocation();
+                LatLng destinationLocation = new LatLng(location.getLatitude(), location.getLongitude());
+
+                List<LatLng> path = null;
+                try {
+                    path = new GeocodeService().getRoute(currentLocation, destinationLocation);
+                    activeBooking.getRoute().setLatLngPath(path);
+                } catch (IOException e) {
+                    Log.e(TAG, e.getMessage());
+                } catch (JSONException e) {
+                    Log.e(TAG, e.getMessage());
+                }
+            }
         } catch (IOException | JSONException e) {
             Log.e(TAG, e.getMessage());
         }

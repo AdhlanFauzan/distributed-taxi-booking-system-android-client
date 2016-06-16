@@ -3,7 +3,7 @@
     <group android:checkableBehavior="single">
         <item android:id="@+id/book_taxi"
             android:title="Request Ride"
-            android:icon="@drawable/ic_taxi"/>
+            android:icon="@drawable/ic_taxi_button"/>
         <item android:id="@+id/taxi_history"
             android:title="History"
             android:icon="@drawable/ic_clock"/>

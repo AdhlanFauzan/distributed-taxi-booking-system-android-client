@@ -3,6 +3,7 @@ package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclie
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllTaxis;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Location;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Taxi;
@@ -42,8 +43,9 @@ public class TaxiEventsService implements Observer {
         this.geocodeService = new GeocodeService();
         this.taxiService = new TaxiService();
 
-        MessageEventBus.getInstance().addObserver(this);
-        MessageEventBus.getInstance().open();
+        MessageEventBus bus = MessageEventBus.getInstance();
+        bus.addObserver(this);
+        bus.open();
     }
 
     /**
@@ -65,7 +67,48 @@ public class TaxiEventsService implements Observer {
      * @param location last known location of user.
      */
     public void updateLocation(Location location){
+
         this.currentLocation = location;
+
+        MessageEventBus.getInstance().sendData(location);
+
+        if(AllBookings.getInstance().activeBooking()
+                && AllBookings.getInstance().getActive().isPassengerPickedUp()){
+            this.updateEta(location);
+        }
+    }
+
+    /**
+     * Update estimated arrival time for a customer to their destination.
+     * @param location
+     */
+    private void updateEta(final Location location){
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int estimatedEta;
+
+                // calculate estimated travel time between user and taxi.
+                try {
+
+                    Location destinationLocation = AllBookings.getInstance().getActive().getRoute().getEndAddress().getLocation();
+
+                    // convert to appropriate location format.
+                    final LatLng startLocation = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                    final LatLng endLocation = new LatLng(destinationLocation.getLatitude(), destinationLocation.getLongitude());
+
+                    estimatedEta = geocodeService.estimateTravelTime(startLocation, endLocation);
+                    AllTaxis.getInstance().setEstimatedEta(estimatedEta);
+                } catch (IOException e) {
+                    Log.e(TAG, e.getMessage());
+                    return;
+                } catch (JSONException e) {
+                    Log.e(TAG, e.getMessage());
+                    return;
+                }
+            }
+        }).start();
     }
 
     /**

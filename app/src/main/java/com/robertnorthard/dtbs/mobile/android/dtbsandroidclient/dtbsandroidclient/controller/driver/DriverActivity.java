@@ -42,6 +42,9 @@ public class DriverActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_driver_frame, new DriverMapFragment()).commit();
     }
 
     @Override
@@ -95,6 +98,9 @@ public class DriverActivity extends AppCompatActivity
 
         switch(id){
 
+            case R.id.taxi_bookings:
+                fragment = new DriverMapFragment();
+                break;
             case R.id.logout:
                 startActivity(new Intent(getBaseContext(), LoginActivity.class));
                 break;
@@ -121,5 +127,4 @@ public class DriverActivity extends AppCompatActivity
 
         return true;
     }
-
 }

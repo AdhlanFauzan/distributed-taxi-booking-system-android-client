@@ -1,8 +1,7 @@
 package com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.controller.booking.history;
 
-import android.os.Bundle;
 import android.app.Fragment;
-import android.util.Log;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,11 +10,11 @@ import android.widget.TextView;
 
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.R;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.cache.AllBookings;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formatter.currency.CurrencyFormatter;
+import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.formatter.currency.SterlingFormatter;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.model.Booking;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.config.DtbsPreferences;
 import com.robertnorthard.dtbs.mobile.android.dtbsandroidclient.dtbsandroidclient.service.tasks.CancelTaxiBookingAsyncTask;
-
-import java.util.concurrent.ExecutionException;
 
 /**
  * Controller class for viewing a single booking.
@@ -34,7 +33,7 @@ public class BookingViewFragment extends Fragment {
     private TextView destinationAddress;
     private TextView bookingTime;
     private Button cancelTaxi;
-
+    private CurrencyFormatter currencyFormatter;
     private Booking activeBooking;
 
     public BookingViewFragment() {
@@ -56,6 +55,7 @@ public class BookingViewFragment extends Fragment {
         this.cancelTaxi = (Button)v.findViewById(R.id.btn_booking_view_cancel_booking);
 
         this.activeBooking = AllBookings.getInstance().findItem(getArguments().getLong(DtbsPreferences.BOOKING_ID));
+        this.currencyFormatter = new SterlingFormatter();
 
         this.initialiseDisplay();
 
@@ -76,8 +76,7 @@ public class BookingViewFragment extends Fragment {
         this.destinationAddress.setText(this.activeBooking.getRoute().getEndAddress().getAddress());
         this.bookingReference.setText(this.activeBooking.getId()+"");
         this.bookingTime.setText(this.activeBooking.getTimestamp().toString());
-        this.bookingCost.setText(("£ " + this.activeBooking.getCost()));
-
+        this.bookingCost.setText(this.currencyFormatter.format(this.activeBooking.getCost()));
 
         this.cancelTaxi.setOnClickListener(new View.OnClickListener() {
             @Override
