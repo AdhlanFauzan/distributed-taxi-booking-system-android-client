@@ -266,7 +266,12 @@ public class PassengerMapFragment extends Fragment implements Observer {
 
         if(bookings.getActive() != null){
 
-            Location destinationLocation = bookings.getActive().getRoute().getEndAddress().getLocation();
+            Location destinationLocation =
+                    bookings
+                            .getActive()
+                            .getRoute()
+                            .getEndAddress()
+                            .getLocation();
 
             LatLng location = new LatLng(
                     destinationLocation.getLatitude(),
@@ -290,7 +295,10 @@ public class PassengerMapFragment extends Fragment implements Observer {
      * Update map with taxi.
      */
     private void updateMap(Taxi t){
-        LatLng location = new LatLng(t.getLocation().getLatitude(), t.getLocation().getLongitude());
+        LatLng location = new LatLng(
+                t.getLocation().getLatitude(),
+                t.getLocation().getLongitude());
+
         MarkerOptions options = new MarkerOptions();
         options.position(location);
         options.title("Numberplate: " + t.getVehicle().getNumberplate());
